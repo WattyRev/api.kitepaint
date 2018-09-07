@@ -1,0 +1,25 @@
+{
+    "name": "kitepaint-be",
+    "version": "1.0.0",
+    "description": "",
+    "main": "php/index.php",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "deploy": "grunt deploy"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/WattyRev/kitepaint-be.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/WattyRev/kitepaint-be/issues"
+    },
+    "homepage": "https://github.com/WattyRev/kitepaint-be#readme",
+    "devDependencies": {
+        "grunt": "^1.0.3",
+        "grunt-ftpush": "https://github.com/WattyRev/grunt-ftpush.git",
+        "load-grunt-tasks": "^3.5.2"
+    }
+}
