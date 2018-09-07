@@ -2,9 +2,9 @@ language: node_js
 node_js:
   - "7"
 deploy:
-  - provider: script
-    script:
-        - npm install
-        - npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
-    on:
-      branch: master
+  provider: script
+  script:
+    - npm install
+    - npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
+  on:
+    branch: master
