@@ -1,11 +1,12 @@
 language: node_js
 node_js:
   - "7"
-script: echo "script"
+stages:
+  - install
+  - name: deploy
+    if: branch = master
+install:
+  - npm install
 deploy:
-  provider: script
-  script:
-    - npm install
-    - npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
-  on:
-    branch: master
+  - npm install
+  - npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
