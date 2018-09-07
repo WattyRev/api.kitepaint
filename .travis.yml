@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - "7"
+script: echo "script"
 deploy:
   provider: script
   script:
