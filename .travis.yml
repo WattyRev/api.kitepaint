@@ -2,8 +2,8 @@ env:
   global:
   - 'SFTP_USER=[sftp-user]'
   - 'SFTP_PASSWORD=[sftp-pass]'
-after_success:
-- curl --ftp-create-dirs
-       -T php
-       --key /tmp/sftp_rsa
-       sftp://${SFTP_USER}:${SFTP_PASSWORD}@wattyrev.com/beta.kitepaint.com/api
+deploy:
+  - provider: script
+    script: deploy.sh ${SFTP_USER} ${SFTP_PASSWORD}
+    on:
+      branch: master

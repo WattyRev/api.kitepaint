@@ -1,0 +1,1 @@
+echo "username $1"
