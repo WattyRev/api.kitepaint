@@ -11,7 +11,7 @@ module.exports = function(grunt) {
                     username: grunt.option("ftp-username"),
                     password: grunt.option("ftp-pass")
                 },
-                src: "./php",
+                src: "./api",
                 dest: "/beta.kitepaint.com/api",
                 simple: false,
                 useList: true
