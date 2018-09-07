@@ -6,6 +6,6 @@ env:
 script: echo "script"
 deploy:
   - provider: script
-    script: deploy.sh ${SFTP_USER} ${SFTP_PASSWORD}
+    script: ./deploy.sh ${SFTP_USER} ${SFTP_PASSWORD}
     on:
       branch: master
