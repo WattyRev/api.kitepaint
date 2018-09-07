@@ -5,8 +5,12 @@ stages:
   - install
   - name: deploy
     if: branch = master
-install:
+script:
   - npm install
 deploy:
-  - npm install
-  - npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
+  provider: script
+  script:
+    - npm install
+    - npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
+  on:
+    branch: master
