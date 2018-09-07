@@ -1,9 +1,9 @@
 language: php
-
 env:
   global:
   - 'SFTP_USER=[user]'
   - 'SFTP_PASSWORD=[pass]'
+script: echo "script"
 deploy:
   - provider: script
     script: deploy.sh ${SFTP_USER} ${SFTP_PASSWORD}
