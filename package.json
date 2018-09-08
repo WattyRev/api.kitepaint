@@ -5,7 +5,8 @@
     "main": "php/index.php",
     "scripts": {
         "test": "echo \"I got no tests\"",
-        "deploy": "grunt deploy"
+        "deploy-prod": "grunt deploy-prod",
+        "deploy-beta": "grunt deploy-beta"
     },
     "repository": {
         "type": "git",

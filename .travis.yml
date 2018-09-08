@@ -2,9 +2,9 @@ language: node_js
 node_js:
   - "7"
 stages:
-  - name: deploy
+  - name: deploy-beta
     if: branch = master
 jobs:
   include:
-    - stage: deploy
-      script: npm run deploy -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
+    - stage: deploy-beta
+      script: npm run deploy-beta -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
