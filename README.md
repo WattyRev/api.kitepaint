@@ -1,4 +1,4 @@
-![](https://travis-ci.com/WattyRev/kitepaint-be.svg?branch=master)
+![](https://travis-ci.com/WattyRev/kitepaint-be.svg?branch=master) [view](https://travis-ci.com/WattyRev/kitepaint-be)
 
 # KitePaint Backend
 
