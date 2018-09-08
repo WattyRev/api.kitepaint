@@ -10,14 +10,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/WattyRev/kitepaint-be.git"
+        "url": "git+https://github.com/WattyRev/api.kitepaint.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/WattyRev/kitepaint-be/issues"
+        "url": "https://github.com/WattyRev/api.kitepaint/issues"
     },
-    "homepage": "https://github.com/WattyRev/kitepaint-be#readme",
+    "homepage": "https://github.com/WattyRev/api.kitepaint#readme",
     "devDependencies": {
         "grunt": "^1.0.3",
         "grunt-ftpush": "https://github.com/WattyRev/grunt-ftpush.git",
