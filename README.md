@@ -1,6 +1,8 @@
-![](https://travis-ci.com/WattyRev/kitepaint-be.svg?branch=master) [view](https://travis-ci.com/WattyRev/kitepaint-be)
+![](https://travis-ci.com/WattyRev/api.kitepaint.svg?branch=master)
 
-# KitePaint Backend
+[View Build](https://travis-ci.com/WattyRev/api.kitepaint)
+
+# api.kitepaint
 
 This repo contains code for the REST API and connection to KitePaint's Database.
 
