@@ -27,5 +27,5 @@ $query = sprintf("
 $result = mysql_query($query);
 $result = mysql_fetch_array($result);
 if ($result['admin'] !== '1') {
-	echo 'Access Denied';
+	echo '{ message: "Access Denied" }';
 } ?>
