@@ -14,7 +14,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
     exit;
     return;
 }
-$u = $_SESSION['PHP_AUTH_USER'];
+$u = $_SERVER['PHP_AUTH_USER'];
 $p = $_SERVER['PHP_AUTH_PW'];
 
 $seed="0dAfghRqSTgx"; // the seed for the passwords
