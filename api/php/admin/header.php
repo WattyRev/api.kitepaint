@@ -6,9 +6,9 @@ ini_set('display_errors', 'on');
 if ($_POST['ssid']) {
     list($sid, $ext) = explode('-', $_GET['sessid']);
     session_id($sid);
-    if (isset($_SESSION['extids'][$ext])) {
+    if (isset($_SESSION['idExtensions'][$ext])) {
         // okay, make sure it can't be used again
-        unset($_SESSION['extids'][$ext]);
+        unset($_SESSION['idExtensions'][$ext]);
     }
 }
 session_start();
