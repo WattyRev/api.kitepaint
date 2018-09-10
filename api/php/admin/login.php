@@ -33,7 +33,7 @@ if ($result['admin'] !== '1') {
 
 $_SESSION['idExtensions'] = array();
 $idExtension = md5(uniqid(mt_rand(), true)); // Random id
-$_SESSION['idExtensions'][idExtension] = 1;
+$_SESSION['idExtensions'][$idExtension] = 1;
 $sessionId = session_id() . '-' . $idExtension;
 
 // Get the domain
