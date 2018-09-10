@@ -3,6 +3,14 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 // Start a session
+if ($_POST['ssid']) {
+    list($sid, $ext) = explode('-', $_GET['sessid']);
+    session_id($sid);
+    if (isset($_SESSION['extids'][$ext])) {
+        // okay, make sure it can't be used again
+        unset($_SESSION['extids'][$ext]);
+    }
+}
 session_start();
 require_once ('../db_connect.inc.php'); // include the database connection
 require_once ("../functions.inc.php"); // include all the functions
