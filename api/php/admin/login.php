@@ -31,12 +31,12 @@ if ($result['admin'] !== '1') {
 	return;
 }
 
-// $_SESSION['idExtensions'] = array();
-// $idExtension = md5(uniqid(mt_rand(), true)); // Random id
-// $_SESSION['idExtensions'][idExtension] = 1;
-// $sessionId = session_id() . '-' . $idExtension;
+$_SESSION['idExtensions'] = array();
+$idExtension = md5(uniqid(mt_rand(), true)); // Random id
+$_SESSION['idExtensions'][idExtension] = 1;
+$sessionId = session_id() . '-' . $idExtension;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
-header("Location: $returnUrl");
+header("Location: $returnUrl?ssid=$returnUrl");
 die();
