@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 // Start a session
-if ($_POST['ssid']) {
+if (isset($_POST['ssid'])) {
     list($sid, $ext) = explode('-', $_GET['sessid']);
     session_id($sid);
     if (isset($_SESSION['idExtensions'][$ext])) {
