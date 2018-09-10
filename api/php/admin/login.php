@@ -36,8 +36,9 @@ $_SESSION['authGranted'] = true;
 $_SESSION['idExtensions'] = array();
 $ext = md5(uniqid(mt_rand(), true)); // Random id
 $_SESSION['idExtensions'][$ext] = 1;
+$sharedId = session_id() . '-' . $ext;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
-header("Location: " . $returnUrl . "?" . http_build_query('ssid' => session_id() . '-' . $ext);
+header("Location: " . $returnUrl . "?" . $sharedId;
 die();
