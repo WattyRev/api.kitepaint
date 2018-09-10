@@ -33,23 +33,25 @@ if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
   }
 }
 
-if (!isset($_SERVER['PHP_AUTH_USER'])) {
+if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     header('WWW-Authenticate: Basic realm="My Realm"');
     header('HTTP/1.0 401 Unauthorized');
 	echo '{ message: "Access Denied" }';
     exit;
 }
-$u = $_SERVER['PHP_AUTH_USER'];
-$p = $_SERVER['PHP_AUTH_PW'];
-$query = sprintf("
-	SELECT admin
-	FROM login
-	WHERE
-	username = '%s' AND password = '%s'
-	AND disabled = 0 AND activated = 1
-	LIMIT 1;", mysql_real_escape_string($u), mysql_real_escape_string(sha1($p . $seed)));
-$result = mysql_query($query);
-$result = mysql_fetch_array($result);
-if ($result['admin'] !== '1') {
-	echo '{ message: "Access Denied" }';
+if (!isset($_SESSION['authGranted']) {
+    $u = $_SERVER['PHP_AUTH_USER'];
+    $p = $_SERVER['PHP_AUTH_PW'];
+    $query = sprintf("
+    	SELECT admin
+    	FROM login
+    	WHERE
+    	username = '%s' AND password = '%s'
+    	AND disabled = 0 AND activated = 1
+    	LIMIT 1;", mysql_real_escape_string($u), mysql_real_escape_string(sha1($p . $seed)));
+    $result = mysql_query($query);
+    $result = mysql_fetch_array($result);
+    if ($result['admin'] !== '1') {
+    	echo '{ message: "Access Denied" }';
+    }
 } ?>

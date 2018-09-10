@@ -14,8 +14,9 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
     exit;
     return;
 }
-$u = $_SERVER['PHP_AUTH_USER'];
+$u = $_SESSION['PHP_AUTH_USER'];
 $p = $_SERVER['PHP_AUTH_PW'];
+
 $seed="0dAfghRqSTgx"; // the seed for the passwords
 $query = sprintf("
 	SELECT admin
@@ -31,12 +32,12 @@ if ($result['admin'] !== '1') {
 	return;
 }
 
+$_SESSION['authGranted'] = true;
 $_SESSION['idExtensions'] = array();
-$idExtension = md5(uniqid(mt_rand(), true)); // Random id
-$_SESSION['idExtensions'][$idExtension] = 1;
-$sessionId = session_id() . '-' . $idExtension;
+$ext = md5(uniqid(mt_rand(), true)); // Random id
+$_SESSION['idExtensions'][$ext] = 1;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
-header("Location: $returnUrl?ssid=$sessionId");
+header("Location: " . $returnUrl . "?" . http_build_query('ssid' => session_id() . '-' . $ext);
 die();
