@@ -38,5 +38,5 @@ $sessionId = session_id() . '-' . $idExtension;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
-header("Location: $returnUrl?ssid=$idExtension");
+header("Location: $returnUrl?ssid=$sessionId");
 die();
