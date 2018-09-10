@@ -40,5 +40,5 @@ $sharedId = session_id() . '-' . $ext;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
-header("Location: " . $returnUrl . "?" . $sharedId);
+header("Location: " . $returnUrl . "?ssid=" . $sharedId);
 die();
