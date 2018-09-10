@@ -39,7 +39,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
 	echo '{ message: "Access Denied" }';
     exit;
 }
-if (!isset($_SESSION['authGranted']) {
+if (!isset($_SESSION['authGranted'])) {
     $u = $_SERVER['PHP_AUTH_USER'];
     $p = $_SERVER['PHP_AUTH_PW'];
     $query = sprintf("
