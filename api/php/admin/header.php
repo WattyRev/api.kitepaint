@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 // Start a session
 if (isset($_POST['ssid'])) {
-    list($sid, $ext) = explode('-', $_GET['sessid']);
+    list($sid, $ext) = explode('-', $_POST['sessid']);
     session_id($sid);
     if (isset($_SESSION['idExtensions'][$ext])) {
         // okay, make sure it can't be used again
