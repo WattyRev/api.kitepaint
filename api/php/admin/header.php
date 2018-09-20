@@ -18,9 +18,9 @@ if (isset($_POST['ssid'])) {
         exit;
     }
 }
-if (session_status() == PHP_SESSION_NONE) {
+// if (session_status() == PHP_SESSION_NONE) {
     session_start();
-}
+// }
 
 require_once ('../db_connect.inc.php'); // include the database connection
 require_once ("../functions.inc.php"); // include all the functions
