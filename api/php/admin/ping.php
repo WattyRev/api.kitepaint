@@ -1,5 +1,8 @@
 <?php
 require_once "header.php";
-
-echo "{ message: \"pong\" }";
+$response = (object) array(
+    'message' => 'pong',
+    'authGranted' => $_SESSION['authGranted']
+);
+echo json_encode($response);
  ?>

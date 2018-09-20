@@ -17,9 +17,11 @@ if (isset($_POST['ssid'])) {
     	echo '{ message: "Access Denied - Invalid session extension" }';
         exit;
     }
-} else {
-    // session_start();
 }
+if (session_id() === "") {
+   session_start();
+}
+
 require_once ('../db_connect.inc.php'); // include the database connection
 require_once ("../functions.inc.php"); // include all the functions
 $seed = "0dAfghRqSTgx"; // the seed for the passwords
@@ -44,7 +46,12 @@ if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
 if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     header('WWW-Authenticate: Basic realm="My Realm"');
     header('HTTP/1.0 401 Unauthorized');
-	echo '{ message: "Access Denied - no authorization has been granted" }';
+    $response = (object) array(
+        'message' => 'Access Denied - no authorization has been granted',
+        'authGranted' => $_SESSION['authGranted'],
+        'php_auth_user' => $_SERVER['PHP_AUTH_USER']
+    );
+    echo json_encode($response);
     exit;
 }
 if (!isset($_SESSION['authGranted'])) {
