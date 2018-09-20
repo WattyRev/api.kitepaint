@@ -4,8 +4,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 // Start a session
 $headers = apache_request_headers();
-if (isset($headers['kp-auth-token'])) {
-    session_id($headers['kp-auth-token']);
+$token = $headers['kp-auth-token'];
+if ($token) {
+    session_id($token);
 }
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -46,6 +47,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     $response = (object) array(
         'message' => 'Access Denied - no authorization has been granted',
     );
+    var_dump($token)
     var_dump($_SESSION);
     echo json_encode($response);
     exit;
