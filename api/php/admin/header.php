@@ -18,8 +18,8 @@ if (isset($_POST['ssid'])) {
         exit;
     }
 }
-if (session_id() === "") {
-   session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
 }
 
 require_once ('../db_connect.inc.php'); // include the database connection
