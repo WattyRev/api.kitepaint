@@ -14,7 +14,7 @@ if (isset($_POST['ssid'])) {
     } else {
         header('WWW-Authenticate: Basic realm="My Realm"');
         header('HTTP/1.0 401 Unauthorized');
-    	echo '{ message: "Access Denied" }';
+    	echo '{ message: "Access Denied - Invalid session extension" }';
         exit;
     }
 } else {
@@ -44,7 +44,7 @@ if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
 if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     header('WWW-Authenticate: Basic realm="My Realm"');
     header('HTTP/1.0 401 Unauthorized');
-	echo '{ message: "Access Denied" }';
+	echo '{ message: "Access Denied - no authorization has been granted" }';
     exit;
 }
 if (!isset($_SESSION['authGranted'])) {
@@ -60,6 +60,9 @@ if (!isset($_SESSION['authGranted'])) {
     $result = mysql_query($query);
     $result = mysql_fetch_array($result);
     if ($result['admin'] !== '1') {
-    	echo '{ message: "Access Denied" }';
+        header('WWW-Authenticate: Basic realm="My Realm"');
+        header('HTTP/1.0 401 Unauthorized');
+    	echo '{ message: "Access Denied - insufficient permissions" }';
+        exit;
     }
 } ?>

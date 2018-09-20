@@ -10,9 +10,8 @@ require_once ("../functions.inc.php"); // include all the functions
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
     header('WWW-Authenticate: Basic realm="My Realm"');
     header('HTTP/1.0 401 Unauthorized');
-	echo 'Access Denied';
+	echo 'Access Denied - No username provided';
     exit;
-    return;
 }
 $u = $_SERVER['PHP_AUTH_USER'];
 $p = $_SERVER['PHP_AUTH_PW'];
@@ -28,8 +27,10 @@ $query = sprintf("
 $result = mysql_query($query);
 $result = mysql_fetch_array($result);
 if ($result['admin'] !== '1') {
-	echo 'Access Denied';
-	return;
+    header('WWW-Authenticate: Basic realm="My Realm"');
+    header('HTTP/1.0 401 Unauthorized');
+	echo '{ message: "Access Denied - insufficient permissions" }';
+	exit;
 }
 
 $_SESSION['authGranted'] = true;
