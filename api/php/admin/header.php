@@ -48,8 +48,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     header('HTTP/1.0 401 Unauthorized');
     $response = (object) array(
         'message' => 'Access Denied - no authorization has been granted',
-        'authGranted' => $_SESSION['authGranted'],
-        'php_auth_user' => $_SERVER['PHP_AUTH_USER']
+        'authGranted' => var_dump($_SESSION),
     );
     echo json_encode($response);
     exit;
