@@ -5,7 +5,7 @@ ini_set('display_errors', 'on');
 // Start a session
 $headers = apache_request_headers();
 if (isset($headers['kp-auth-token'])) {
-    session_id($headers['kp-auth-token'];);
+    session_id($headers['kp-auth-token']);
 }
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
