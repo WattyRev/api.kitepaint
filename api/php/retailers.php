@@ -1,5 +1,5 @@
-<?php 
-require_once "header.php"; 
+<?php
+require_once "header.php";
 
 if ($_GET) {
 
@@ -99,7 +99,7 @@ if ($_GET) {
 				$row = mysql_fetch_array($result);
 				$retailer[$metric] = $row[$metric];
 			}
-			
+
 			$response->message = $retailer;
 			echo json_encode($response);
 			return;
@@ -219,7 +219,7 @@ if ($_GET) {
 			echo json_encode($response);
 			return;
 		}
-		
+
 		//check old password
 		$query = sprintf("
 			SELECT username
@@ -263,7 +263,7 @@ if ($_GET) {
 		//save
 		$query = sprintf("
 			UPDATE retailers
-			SET first_name = '%s' 
+			SET first_name = '%s'
 			WHERE id = '%s'",
 			mysql_real_escape_string($first_name),
 			mysql_real_escape_string($id));
@@ -275,7 +275,7 @@ if ($_GET) {
 		}
 		$query = sprintf("
 			UPDATE retailers
-			SET last_name = '%s' 
+			SET last_name = '%s'
 			WHERE id = '%s'",
 			mysql_real_escape_string($last_name),
 			mysql_real_escape_string($id));
@@ -308,7 +308,7 @@ if ($_GET) {
 			echo json_encode($response);
 			return;
 		}
-		
+
 		//check password
 		$query = sprintf("
 			SELECT username
@@ -502,8 +502,6 @@ if ($_GET) {
 		$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
 		// Check if image file is a actual image or fake image
-		// var_dump($temp);
-		// return;
 		$check = getimagesize($_FILES["image"]["tmp_name"]);
 		if($check === false) {
 			$response->message = "File is not an image.";
@@ -515,8 +513,6 @@ if ($_GET) {
 			header("Location: ../retailers/#!/account?error=File_is_too_large");
 			exit;
 		}
-		// var_dump($imageFileType);
-		// return;
 		if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
 			header("Location: ../retailers/#!/account?error=Invalid_file_format");
 			exit;

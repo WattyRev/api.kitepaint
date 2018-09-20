@@ -10,6 +10,12 @@ if (isset($headers['Kp-Auth-Token'])) {
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > (5 * 60 * 60))) {
+    // last request was more than 5 hours
+    session_unset();     // unset $_SESSION variable for the run-time
+    session_destroy();   // destroy session data in storage
+}
+$_SESSION['LAST_ACTIVITY'] = time();
 
 require_once ('../db_connect.inc.php'); // include the database connection
 require_once ("../functions.inc.php"); // include all the functions
@@ -46,8 +52,6 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     $response = (object) array(
         'message' => 'Access Denied - no authorization has been granted',
     );
-    var_dump($headers);
-    var_dump($_SESSION);
     echo json_encode($response);
     exit;
 }
