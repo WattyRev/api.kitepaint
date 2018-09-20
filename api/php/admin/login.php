@@ -40,5 +40,6 @@ $sharedId = session_id() . '-' . $ext;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
+// TODO use cookies?
 header("Location: " . $returnUrl . "?ssid=" . $sharedId);
 die();

@@ -5,10 +5,11 @@ ini_set('display_errors', 'on');
 // Start a session
 if (isset($_POST['ssid'])) {
     list($sid, $ext) = explode('-', $_POST['ssid']);
-    session_id($sid);
     if (isset($_SESSION['idExtensions'][$ext])) {
         // okay, make sure it can't be used again
         unset($_SESSION['idExtensions'][$ext]);
+        session_id($sid);
+        $_SESSION['authGranted'] = true;
     }
 }
 session_start();
