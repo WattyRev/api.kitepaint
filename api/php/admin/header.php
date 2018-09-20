@@ -49,7 +49,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     $response = (object) array(
         'message' => 'Access Denied - no authorization has been granted',
     );
-    var_dump($_SESSION)
+    var_dump($_SESSION);
     echo json_encode($response);
     exit;
 }
