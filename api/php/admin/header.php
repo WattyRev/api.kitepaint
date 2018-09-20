@@ -5,14 +5,21 @@ ini_set('display_errors', 'on');
 // Start a session
 if (isset($_POST['ssid'])) {
     list($sid, $ext) = explode('-', $_POST['ssid']);
+    session_id($sid);
+    session_start();
     if (isset($_SESSION['idExtensions'][$ext])) {
         // okay, make sure it can't be used again
         unset($_SESSION['idExtensions'][$ext]);
-        session_id($sid);
         $_SESSION['authGranted'] = true;
+    } else {
+        header('WWW-Authenticate: Basic realm="My Realm"');
+        header('HTTP/1.0 401 Unauthorized');
+    	echo '{ message: "Access Denied" }';
+        exit;
     }
+} else {
+    session_start();
 }
-session_start();
 require_once ('../db_connect.inc.php'); // include the database connection
 require_once ("../functions.inc.php"); // include all the functions
 $seed = "0dAfghRqSTgx"; // the seed for the passwords
