@@ -3,8 +3,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 // Start a session
-if (isset($_COOKIE['kp-auth-token'])) {
-    session_id($_COOKIE['kp-auth-token']);
+$headers = apache_request_headers();
+if (isset($headers['kp-auth-token'])) {
+    session_id($headers['kp-auth-token']);
 }
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -25,7 +26,7 @@ if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
       header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
       header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
       header('Access-Control-Max-Age: 1000');
-      header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+      header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, kp-auth-token');
       break;
     }
   }
