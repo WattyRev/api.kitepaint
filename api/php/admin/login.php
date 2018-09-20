@@ -33,7 +33,7 @@ if ($result['admin'] !== '1') {
 	exit;
 }
 
-setcookie('kp-auth-token', session_id, time() + (86400 * 30), "/", 'kitepaint.com');
+setcookie('kp-auth-token', session_id(), time() + (86400 * 30), "/", 'kitepaint.com');
 $_SESSION['authGranted'] = true;
 
 // Get the domain
