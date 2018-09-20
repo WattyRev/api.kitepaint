@@ -18,9 +18,9 @@ if (isset($_POST['ssid'])) {
         exit;
     }
 }
-// if (session_status() == PHP_SESSION_NONE) {
+if (session_status() == PHP_SESSION_NONE) {
     session_start();
-// }
+}
 
 require_once ('../db_connect.inc.php'); // include the database connection
 require_once ("../functions.inc.php"); // include all the functions
@@ -48,8 +48,8 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
     header('HTTP/1.0 401 Unauthorized');
     $response = (object) array(
         'message' => 'Access Denied - no authorization has been granted',
-        'authGranted' => var_dump($_SESSION),
     );
+    var_dump($_SESSION)
     echo json_encode($response);
     exit;
 }
