@@ -10,7 +10,7 @@ require_once ("../functions.inc.php"); // include all the functions
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
     header('WWW-Authenticate: Basic realm="My Realm"');
     header('HTTP/1.0 401 Unauthorized');
-	echo 'Access Denied - No username provided';
+	echo 'Access Denied';
     exit;
 }
 $u = $_SERVER['PHP_AUTH_USER'];
@@ -33,14 +33,11 @@ if ($result['admin'] !== '1') {
 	exit;
 }
 
+setcookie('kp-auth-token', session_id, time() + (86400 * 30), "/", 'kitepaint.com');
 $_SESSION['authGranted'] = true;
-$_SESSION['idExtensions'] = array();
-$ext = md5(uniqid(mt_rand(), true)); // Random id
-$_SESSION['idExtensions'][$ext] = 1;
-$sharedId = session_id() . '-' . $ext;
 
 // Get the domain
 $returnUrl = $_GET['returnUrl'];
 // TODO use cookies?
-header("Location: " . $returnUrl . "?ssid=" . $sharedId);
+header("Location: " . $returnUrl);
 die();

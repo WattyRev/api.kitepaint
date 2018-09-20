@@ -3,20 +3,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 // Start a session
-if (isset($_POST['ssid'])) {
-    list($sid, $ext) = explode('-', $_POST['ssid']);
-    session_id($sid);
-    session_start();
-    if (isset($_SESSION['idExtensions'][$ext])) {
-        // okay, make sure it can't be used again
-        unset($_SESSION['idExtensions'][$ext]);
-        $_SESSION['authGranted'] = true;
-    } else {
-        header('WWW-Authenticate: Basic realm="My Realm"');
-        header('HTTP/1.0 401 Unauthorized');
-    	echo '{ message: "Access Denied - Invalid session extension" }';
-        exit;
-    }
+if (isset($_COOKIE['kp-auth-token'])) {
+    session_id($_COOKIE['kp-auth-token']);
 }
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
