@@ -16,7 +16,7 @@ $allowedOrigins = array(
 $isProduction = ($_SERVER['HTTP_HOST'] === 'kitepaint.com' || $_SERVER['HTTP_HOST'] === 'www.kitepaint.com');
 if (!$isProduction) {
     // Allow localhost to access beta API
-    array_push($allowedOrigins, '.*localhost.*')
+    array_push($allowedOrigins, '.*localhost.*');
 }
 if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
   foreach ($allowedOrigins as $allowedOrigin) {
