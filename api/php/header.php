@@ -20,8 +20,8 @@ $isProduction = (strpos($_SERVER['HTTP_HOST'], 'beta') === false);
 if (!$isProduction) {
     // Allow localhost to access beta API
     array_push($allowedOrigins, 'localhost');
-    array_pusn($allowedOrigina, '//beta.kitepaint.com');
-    array_pusn($allowedOrigina, '//admin.beta.kitepaint.com');
+    array_push($allowedOrigina, '//beta.kitepaint.com');
+    array_push($allowedOrigina, '//admin.beta.kitepaint.com');
 }
 if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
   // If we are on a whitelisted origin, set the appropriate headers
