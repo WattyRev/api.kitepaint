@@ -10,7 +10,7 @@ define("DBUSER", "r3vfan_kitepaint");
 define("PASS", "cJH,^ViVDm21");
 
 // Database name
-$isProduction = ($_SERVER['HTTP_HOST'] === 'kitepaint.com' || $_SERVER['HTTP_HOST'] === 'www.kitepaint.com');
+$isProduction = (strpos($_SERVER['HTTP_HOST'], 'beta') === false);
 define("DB", $isProduction ? "r3vfan_kite_paint" : "r3vfan_kite_paint_beta");
 
 ############## Make the mysql connection ###########

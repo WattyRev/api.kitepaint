@@ -11,16 +11,22 @@ $domain = "kitepaint.com";
 
 // Allow other domains access
 $allowedOrigins = array(
-  '(http(s)?:\/\/)kitepaint.com'
+    '//kitepaint.com',
+    '//www.kitepaint.com',
+    '//admin.kitepaint.com',
+    '//static.kitepaint.com'
 );
-$isProduction = ($_SERVER['HTTP_HOST'] === 'kitepaint.com' || $_SERVER['HTTP_HOST'] === 'www.kitepaint.com');
+$isProduction = (strpos($_SERVER['HTTP_HOST'], 'beta') === false);
 if (!$isProduction) {
     // Allow localhost to access beta API
-    array_push($allowedOrigins, '.*localhost.*');
+    array_push($allowedOrigins, 'localhost');
+    array_pusn($allowedOrigina, '//beta.kitepaint.com');
+    array_pusn($allowedOrigina, '//admin.beta.kitepaint.com');
 }
 if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
+  // If we are on a whitelisted origin, set the appropriate headers
   foreach ($allowedOrigins as $allowedOrigin) {
-    if (preg_match('#' . $allowedOrigin . '#', $_SERVER['HTTP_ORIGIN'])) {
+    if (strpos($_SERVER['HTTP_ORIGIN'], $allowedOrigin) !== false) {
       header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
       header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
       header('Access-Control-Max-Age: 1000');
