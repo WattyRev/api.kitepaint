@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"I got no tests\"",
         "deploy-prod": "grunt deploy-prod",
-        "deploy-beta": "grunt deploy-beta"
+        "deploy-beta": "grunt deploy-beta",
+        "deploy": "node ./deploy.js"
     },
     "repository": {
         "type": "git",
@@ -19,6 +20,7 @@
     },
     "homepage": "https://github.com/WattyRev/api.kitepaint#readme",
     "devDependencies": {
+        "ftp": "^0.3.10",
         "grunt": "^1.0.3",
         "grunt-ftpush": "https://github.com/WattyRev/grunt-ftpush.git",
         "load-grunt-tasks": "^3.5.2"
