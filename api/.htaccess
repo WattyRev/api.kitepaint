@@ -1,7 +1,7 @@
 # Allow kitepaint domains to make requests to this repo's uploaded files
 <FilesMatch "\.(html|js|css|png|jpg|gif|svg|pdf|php)$">
     <IfModule mod_headers.c>
-        SetEnvIf Origin "http(s)?://(www\.|\.)?(kitepaint.com|beta.kitepaint.com)$" AccessControlAllowOrigin=$0
+        SetEnvIf Origin "((http(s)?://(www\.|\.)?(kitepaint.com|beta.kitepaint.com))|.*localhost:.*)$" AccessControlAllowOrigin=$0
         Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
         Header merge Vary Origin
     </IfModule>

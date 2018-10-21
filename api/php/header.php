@@ -32,4 +32,12 @@ if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
       header('Access-Control-Max-Age: 1000');
       header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
-$domain = "kitepaint.com";
+      // respond to preflights	$domain = "kitepaint.com";
+      if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+         header('Access-Control-Allow-Origin: *');
+         exit;
+      }
+      break;
+    }
+  }
+}
