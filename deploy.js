@@ -88,5 +88,6 @@ client
     })
     .catch(error => {
         console.error("An error occurred.", error);
-        return client.end();
+        client.end();
+        process.exit(1);
     });
