@@ -8,4 +8,12 @@ require_once ('db_connect.inc.php'); // include the database connection
 require_once ("functions.inc.php"); // include all the functions
 $seed="0dAfghRqSTgx"; // the seed for the passwords
 
-$domain = "kitepaint.com";
+      // respond to preflights	$domain = "kitepaint.com";
+      if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+         header('Access-Control-Allow-Origin: *');
+         exit;
+      }
+      break;
+    }
+  }
+}
