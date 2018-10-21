@@ -26,6 +26,11 @@ $domain =  "kitepaint.com"; // the domain name without http://www.
 $allowedOrigins = array(
   '(http(s)://)?(admin\.|admin\.beta\.)?kitepaint.com'
 );
+$isProduction = (strpos($_SERVER['HTTP_HOST'], 'beta') === false);
+if (!$isProduction) {
+    // Allow localhost to access beta API
+    array_push($allowedOrigins, '.*localhost.*');
+}
 if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
   foreach ($allowedOrigins as $allowedOrigin) {
     if (preg_match('#' . $allowedOrigin . '#', $_SERVER['HTTP_ORIGIN'])) {

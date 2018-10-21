@@ -10,7 +10,8 @@ define("DBUSER", "r3vfan_kitepaint");
 define("PASS", "cJH,^ViVDm21");
 
 // Database name
-define("DB", "r3vfan_kite_paint");
+$isProduction = (strpos($_SERVER['HTTP_HOST'], 'beta') === false);
+define("DB", $isProduction ? "r3vfan_kite_paint" : "r3vfan_kite_paint_beta");
 
 ############## Make the mysql connection ###########
 $conn = mysql_connect(HOST, DBUSER, PASS) or  die('Could not connect !<br />Please contact the site\'s administrator.');
