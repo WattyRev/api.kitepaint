@@ -8,7 +8,7 @@
         "deploy-prod": "grunt deploy-prod",
         "deploy-beta": "grunt deploy-beta",
         "deploy":
-            "node ./deploy.js localDirectory=api path=./public_html/api.beta.kitepaint.com/"
+            "node ./deploy.js dist=api path=./public_html/api.beta.kitepaint.com/"
     },
     "repository": {
         "type": "git",
