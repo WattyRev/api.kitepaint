@@ -11,7 +11,7 @@ jobs:
     - stage: deploy-prod
       script: npm run deploy-prod -- --ftp-username=${FTP_USER} --ftp-pass=${FTP_PASS}
     - stage: deploy-beta
-      script: npm run deploy -- user=${FTP_USER} pass=${FTP_PASS} path=api.beta.kitepaint.com/ dist=api
+      script: npm run deploy -- user=${SFTP_USER} pass=${SFTP_PASS} host=${SFTP_HOST}
 notifications:
   email:
     on_success: never

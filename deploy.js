@@ -1,150 +1,92 @@
-const Client = require("ftp");
+const Client = require("ssh2-sftp-client");
 const fs = require("fs");
 const path = require("path");
 
+// Get command line arguments by name. Supported arguments:
+// host, user, pass, path, dist, verbose
 const args = process.argv.slice(2).reduce((accumulatedArguments, arg) => {
     const split = arg.split("=");
     accumulatedArguments[split[0]] = split[1];
     return accumulatedArguments;
 }, {});
-const host = args.host || "wattyrev.com";
+const host = args.host;
 const user = args.user;
 const password = args.pass;
-const directoryPath = args.path;
-const contentDirectory = args.dist || "dist";
+const remoteDirectory = args.path;
+const localDirectory = args.dist || "dist";
+const verbose = !!args.verbose;
 
 // Create the FTP client
 const client = new Client();
 
-/**
- * Promise wrapper for client.mkdir. Creates a directory on the FTP server.
- * @param  {Client} client FTP client
- * @param  {String} name   The name of the folder to create
- * @return {Promise}
- */
-function mkdir(client, name) {
-    return new Promise((resolve, reject) => {
-        client.mkdir(name, error => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve();
-        });
-    });
-}
-
-/**
- * Promise wrapper for client.cwd. Moves into a directory on the FTP server.
- * @param  {Client} client FTP client
- * @param  {String} name The name of the folder to enter
- * @return {Promise}
- */
-function cwd(client, name) {
-    return new Promise((resolve, reject) => {
-        client.cwd(name, (error, currentDirectory) => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve(currentDirectory);
-        });
-    });
-}
-
-/**
- * Promise wrapper for client.list. Provides all the items in the current remote directory
- * @param  {Client} client FTP client
- * @return {Promise} Resolves with an array of items
- */
-function list(client) {
-    return new Promise((resolve, reject) => {
-        client.list((error, list) => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve(list);
-        });
-    });
-}
-
-/**
- * Promise wrapper for client.put. Uploads a file to the FTP server.
- * @param  {Client} client FTP client
- * @param  {String} itemToUpload The path to the file to be uploaded
- * @param  {String} remoteFileName The name for the file to be uploaded with into the current remote
- * directory
- * @return {Promise}
- */
-function put(client, itemToUpload, remoteFileName) {
-    return new Promise((resolve, reject) => {
-        client.put(itemToUpload, remoteFileName, error => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve();
-        });
-    });
-}
-
-/**
- * Upload the contents of the specified folder
- * @param  {Client} client The FTP client
- * @param  {String} folderToUpload The folder that should be uploaded
- * @return {Promise}
- */
-async function uploadContents(client, folderToUpload) {
+// Recursively upload a folder's contents
+async function uploadContents(client, folderToUpload, uploadTo) {
     // Get the items in the current local directory
+    if (verbose) {
+        console.log(`Reading contents of local directory: ${folderToUpload}`);
+    }
     const items = fs.readdirSync(folderToUpload);
 
-    // Get the list of items in the remote server
-    const remoteList = await list(client);
+    // Get the items in the remote directory
+    if (verbose) {
+        console.log(`Reading contents of remote directory: ${uploadTo}`);
+    }
+    const remoteList = await client.list(uploadTo);
+
     const uploadPromises = items.map(async item => {
+        if (verbose) {
+            console.log(`Reading details of remote file ${item}`);
+        }
         const remoteItem = remoteList.find(
             remoteItem => remoteItem.name === item
         );
-        const pathToItem = path.join(folderToUpload, item);
-        const localItemStats = fs.lstatSync(pathToItem);
+        const remotePath = `${uploadTo}/${item}`;
+        const localPath = path.join(folderToUpload, item);
+
+        if (verbose) {
+            console.log(`Reading stats of local item ${localPath}`);
+        }
+        const localItemStats = fs.lstatSync(localPath);
         const isDirectory = localItemStats.isDirectory();
 
         if (isDirectory) {
             const directoryExists = !!remoteItem;
             if (!directoryExists) {
                 console.log(`Creating directory ${item}`);
-                await mkdir(client, item);
+                await client.mkdir(remotePath);
             }
-            await cwd(client, item);
-            return uploadContents(client, pathToItem);
+            return uploadContents(client, localPath, remotePath);
         }
 
         const remoteItemSize = remoteItem ? remoteItem.size : 0;
         const localItemSize = localItemStats.size;
         if (remoteItemSize === localItemSize) {
-            console.log(`No changes made to ${pathToItem}. Skipping upload.`);
+            console.log(`No changes made to ${localPath}. Skipping upload.`);
             return new Promise(resolve => resolve());
         }
 
-        console.log(`Uploading ${pathToItem} ...`);
-        return put(client, pathToItem, item).then(() => {
-            console.log(`Uploaded ${pathToItem}.`);
+        console.log(`Uploading ${localPath} ...`);
+        return client.put(localPath, remotePath).then(() => {
+            console.log(`Uploaded ${localPath}.`);
+            return new Promise(resolve => resolve());
         });
     });
     return Promise.all(uploadPromises);
 }
 
-// When the client is ready, move in to the relevant folder, and begin the upload.
-client.on("ready", function() {
-    client.cwd(directoryPath, (error, currentDirectory) => {
-        uploadContents(client, contentDirectory)
-            .then(() => client.end())
-            .catch(error => {
-                throw error;
-            });
+client
+    .connect({
+        host,
+        port: "2222",
+        username: user,
+        password
+    })
+    .then(async data => {
+        console.log("Connected to SFTP.");
+        await uploadContents(client, localDirectory, remoteDirectory);
+        return client.end();
+    })
+    .catch(error => {
+        console.error("An error occurred.", error);
+        return client.end();
     });
-});
-
-// Connect to the FTP server
-client.connect({
-    host,
-    port: 21,
-    user,
-    password
-});
