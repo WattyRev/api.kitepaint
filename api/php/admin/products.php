@@ -1,5 +1,5 @@
 <?php
-require_once "header.php"; 
+require_once "header.php";
 if ($_GET){
 	$filter = "";
 	if(isset($_GET['filter'])){
@@ -39,7 +39,7 @@ if ($_GET){
 
 	//Delete
 	if (isset($_POST['delete'])) {
-		$query = sprintf("delete from products where id = '%s'", 
+		$query = sprintf("delete from products where id = '%s'",
 			mysql_real_escape_string($_POST['id']));
 
 		if (mysql_query($query)) {
@@ -66,17 +66,17 @@ if ($_GET){
 
 
 		$code = generate_code(20);
-		$sql = sprintf("insert into products (activated,name,manufacturer,created,url,colors,variations) value (1,'%s','%s',now(),'%s','%s','%s')",
+		$sql = sprintf("insert into products (status,name,manufacturer,created,url,colors,variations) value (0,'%s','%s',now(),'%s','%s','%s')",
 		mysql_real_escape_string($name), mysql_real_escape_string($manufacturer)
 		, mysql_real_escape_string($url), mysql_real_escape_string($colors), mysql_real_escape_string($variations));
-		
-		
+
+
 		if (mysql_query($sql)) {
 			$id = mysql_insert_id();
 
 			echo json_encode($response);
 			return;
-		
+
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to create product';
@@ -88,7 +88,7 @@ if ($_GET){
 	//Update
 	$id = $_POST['id'];
 	$vars = array(
-		'activated' => $_POST['activated'] === 'true' ? '1' : '0',
+		'status' => $_POST['status'],
 		'name' => $_POST['name'],
 		'manufacturer' => $_POST['manufacturer'],
 		'url' => $_POST['url'],
