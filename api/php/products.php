@@ -1,6 +1,6 @@
 <?php
 require_once "header.php";
-if ($_GET){
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 	if (isset($_GET['filter'])) {
 		$filter = "";
