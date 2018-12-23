@@ -39,17 +39,14 @@ if ($_GET){
 			$productIdList = '';
 			$count = 0;
 			$ids = getPublicProductIds();
-			echo "ids";
-			var_dump($ids);
 			forEach($ids as $id) {
 				$count ++;
 				if ($count > 1) {
-					$filter .= ',';
+					$productIdList .= ',';
 				}
 				$productIdList .= $id;
 			}
 			$productFilter = "AND product in ($productIdList)";
-			echo "query: $productFilter";
 		}
 
 		$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
