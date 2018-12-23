@@ -35,7 +35,7 @@ if ($_GET){
 	if (isset($_GET['id'])) {
 		$query = sprintf("SELECT * FROM products WHERE id = " . $_GET['id']);
 	} else {
-		$query = sprintf("SELECT * FROM products WHERE status = 2");
+		$query = sprintf("SELECT * FROM products WHERE status = \"2\"");
 	}
 
 	$result = mysql_query($query);
