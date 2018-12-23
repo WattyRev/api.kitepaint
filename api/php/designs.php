@@ -1,19 +1,57 @@
 <?php
 require_once "header.php";
+
+function getPublicProductIds() {
+	// Query IDs of products that are public (status=2)
+	$query = sprintf("SELECT id FROM products WHERE status = \"2\"");
+	$result = mysql_query($query);
+	$num = mysql_num_rows($result);
+
+	// Cast SQL response into an array of IDs.
+	$response = array();
+	for ($i = 0; $i < $num; $i++) {
+		array_push($response, mysql_result($result,$i,"id"));
+	}
+	return $response;
+}
+
+
 if ($_GET){
+	$status = '';
 	if (isset($_GET['filter'])) {
 		$filter = "";
 		$count = 0;
 		foreach($_GET['filter'] as $metric => $value){
+			if ($metric == 'status') {
+				$status = "$value";
+			}
 			$count ++;
 			if ($count > 1) {
 				$filter .= ' AND ';
 			}
 			$filter .= "$metric  =  $value";
 		}
+
+		$productFilter = '';
+		// If requesting for public designs, only get designs of public products as well.
+		if ($status == '2') {
+			// Build filter to get only designs of public products
+			$productIdList = '';
+			$count = 0;
+			$ids = getPublicProductIds();
+			forEach($ids as $id) {
+				$count ++;
+				if ($count > 1) {
+					$productIdList .= ',';
+				}
+				$productIdList .= $id;
+			}
+			$productFilter = "AND product in ($productIdList)";
+		}
+
 		$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 		$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
-		$query = sprintf("SELECT * FROM designs WHERE $filter $order $limit");
+		$query = sprintf("SELECT * FROM designs WHERE $filter $productFilter $order $limit");
 
 		$result = mysql_query($query);
 		$num = mysql_num_rows($result);

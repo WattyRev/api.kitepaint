@@ -1,6 +1,6 @@
 <?php
-require_once "header.php"; 
-if ($_GET){
+require_once "header.php";
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 	if (isset($_GET['filter'])) {
 		$filter = "";
@@ -34,12 +34,10 @@ if ($_GET){
 
 	if (isset($_GET['id'])) {
 		$query = sprintf("SELECT * FROM products WHERE id = " . $_GET['id']);
-	} else if (isset($_GET['activated'])) {
-		$query = sprintf("SELECT * FROM products WHERE activated = 1");
 	} else {
-		$query = sprintf("SELECT * FROM products");
+		$query = sprintf("SELECT * FROM products WHERE status = \"2\"");
 	}
-		 
+
 	$result = mysql_query($query);
 	$num = mysql_num_rows($result);
 	mysql_close();
