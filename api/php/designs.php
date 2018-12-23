@@ -38,7 +38,10 @@ if ($_GET){
 			// Build filter to get only designs of public products
 			$productIdList = '';
 			$count = 0;
-			forEach(getPublicProductIds() as $id) {
+			$ids = getPublicProductIds();
+			echo "ids";
+			var_dump($ids);
+			forEach($ids as $id) {
 				$count ++;
 				if ($count > 1) {
 					$filter .= ',';
@@ -46,6 +49,7 @@ if ($_GET){
 				$productIdList .= $id;
 			}
 			$productFilter = "AND product in ($productIdList)";
+			echo "query: $productFilter";
 		}
 
 		$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
