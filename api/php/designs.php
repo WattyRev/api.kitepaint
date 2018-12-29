@@ -16,7 +16,7 @@ function getPublicProductIds() {
 }
 
 function getProductStatusesById() {
-	// Query IDs of products that are public (status=2)
+	// Query the statuses of products and their ids
 	$query = sprintf("SELECT id, status FROM products");
 	$result = mysql_query($query);
 	$num = mysql_num_rows($result);
@@ -26,7 +26,6 @@ function getProductStatusesById() {
 	for ($i = 0; $i < $num; $i++) {
 		$response[mysql_result($result,$i,"id")] = mysql_result($result,$i,"status");
 	}
-	var_dump($response);
 	return $response;
 }
 
@@ -74,7 +73,7 @@ if ($_GET){
 		mysql_close();
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
-			$designs = (object) array();
+			$design = (object) array();
 			$design->id = mysql_result($result,$i,"id");
 			$design->created = date("m/d/Y", strtotime(mysql_result($result,$i,"created")));
 			$design->updated = date("m/d/Y", strtotime(mysql_result($result,$i,"updated")));
@@ -86,7 +85,7 @@ if ($_GET){
 			$design->active = mysql_result($result,$i,"active");
 			$design->images = mysql_result($result,$i,"images");
 			$design->productStatus = $productStatuses[$design.product];
-			array_push($response, $designs);
+			array_push($response, $design);
 		}
 		echo JSON_encode($response);
 		return;
