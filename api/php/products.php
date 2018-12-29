@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 			$product->variations = mysql_result($result,$i,"variations");
 			$product->notes = mysql_result($result,$i,"notes");
 			$product->status = mysql_result($result,$i,"status");
+			$product->embed = mysql_result($result,$i,"embed");
 			array_push($response, $product);
 		}
 		echo JSON_encode($response);
@@ -54,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		$product->variations = mysql_result($result,$i,"variations");
 		$product->notes = mysql_result($result,$i,"notes");
 		$product->status = mysql_result($result,$i,"status");
+		$product->embed = mysql_result($result,$i,"embed");
 		array_push($response, $product);
 	}
 	echo json_encode($response);
