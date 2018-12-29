@@ -19,14 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		mysql_close();
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
-			$products = (object) array();
-			foreach ($_GET['return'] as $key=>$metric){
-				$products->$metric = mysql_result($result,$i,$metric);
-				if ($metric === 'created') {
-					$products->$metric = date("m/d/Y", strtotime($products->$metric));
-				}
-			}
-			array_push($response, $products);
+			$product = (object) array();
+			$product->id = mysql_result($result,$i,"id");
+			$product->name = mysql_result($result,$i,"name");
+			$product->manufacturer = mysql_result($result,$i,"manufacturer");
+			$product->url = mysql_result($result,$i,"url");
+			$product->colors = mysql_result($result,$i,"colors");
+			$product->variations = mysql_result($result,$i,"variations");
+			$product->notes = mysql_result($result,$i,"notes");
+			$product->status = mysql_result($result,$i,"status");
+			array_push($response, $product);
 		}
 		echo JSON_encode($response);
 		return;
@@ -35,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (isset($_GET['id'])) {
 		$query = sprintf("SELECT * FROM products WHERE id = " . $_GET['id']);
 	} else {
-		$query = sprintf("SELECT * FROM products WHERE status = \"2\"");
+		$query = sprintf("SELECT * FROM products WHERE status in (\"1\", \"2\")");
 	}
 
 	$result = mysql_query($query);
@@ -43,15 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	mysql_close();
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-		$products = (object) array();
-		$products->id = mysql_result($result,$i,"id");
-		$products->name = mysql_result($result,$i,"name");
-		$products->manufacturer = mysql_result($result,$i,"manufacturer");
-		$products->url = mysql_result($result,$i,"url");
-		$products->colors = mysql_result($result,$i,"colors");
-		$products->variations = mysql_result($result,$i,"variations");
-		$products->notes = mysql_result($result,$i,"notes");
-		array_push($response, $products);
+		$product = (object) array();
+		$product->id = mysql_result($result,$i,"id");
+		$product->name = mysql_result($result,$i,"name");
+		$product->manufacturer = mysql_result($result,$i,"manufacturer");
+		$product->url = mysql_result($result,$i,"url");
+		$product->colors = mysql_result($result,$i,"colors");
+		$product->variations = mysql_result($result,$i,"variations");
+		$product->notes = mysql_result($result,$i,"notes");
+		$product->status = mysql_result($result,$i,"status");
+		array_push($response, $product);
 	}
 	echo json_encode($response);
 }

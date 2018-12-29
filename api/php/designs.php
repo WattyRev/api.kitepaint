@@ -15,8 +15,23 @@ function getPublicProductIds() {
 	return $response;
 }
 
+function getProductStatusesById() {
+	// Query the statuses of products and their ids
+	$query = sprintf("SELECT id, status FROM products");
+	$result = mysql_query($query);
+	$num = mysql_num_rows($result);
+
+	// Cast SQL response into a key value pair.
+	$response = array();
+	for ($i = 0; $i < $num; $i++) {
+		$response[mysql_result($result,$i,"id")] = mysql_result($result,$i,"status");
+	}
+	return $response;
+}
+
 
 if ($_GET){
+	$productStatuses = getProductStatusesById();
 	$status = '';
 	if (isset($_GET['filter'])) {
 		$filter = "";
@@ -58,14 +73,19 @@ if ($_GET){
 		mysql_close();
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
-			$designs = (object) array();
-			foreach ($_GET['return'] as $key=>$metric){
-				$designs->$metric = mysql_result($result,$i,$metric);
-				if ($metric === 'created' || $metric === 'updated') {
-					$designs->$metric = date("m/d/Y", strtotime($designs->$metric));
-				}
-			}
-			array_push($response, $designs);
+			$design = (object) array();
+			$design->id = mysql_result($result,$i,"id");
+			$design->created = date("m/d/Y", strtotime(mysql_result($result,$i,"created")));
+			$design->updated = date("m/d/Y", strtotime(mysql_result($result,$i,"updated")));
+			$design->name = mysql_result($result,$i,"name");
+			$design->user = mysql_result($result,$i,"user");
+			$design->product = mysql_result($result,$i,"product");
+			$design->variations = mysql_result($result,$i,"variations");
+			$design->status = mysql_result($result,$i,"status");
+			$design->active = mysql_result($result,$i,"active");
+			$design->images = mysql_result($result,$i,"images");
+			$design->productStatus = $productStatuses[$design->product];
+			array_push($response, $design);
 		}
 		echo JSON_encode($response);
 		return;
@@ -84,18 +104,19 @@ if ($_GET){
 	mysql_close();
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-		$designs = (object) array();
-		$designs->id = mysql_result($result,$i,"id");
-		$designs->created = date("m/d/Y", strtotime(mysql_result($result,$i,"created")));
-		$designs->updated = date("m/d/Y", strtotime(mysql_result($result,$i,"updated")));
-		$designs->name = mysql_result($result,$i,"name");
-		$designs->user = mysql_result($result,$i,"user");
-		$designs->product = mysql_result($result,$i,"product");
-		$designs->variations = mysql_result($result,$i,"variations");
-		$designs->status = mysql_result($result,$i,"status");
-		$designs->active = mysql_result($result,$i,"active");
-		$designs->images = mysql_result($result,$i,"images");
-		array_push($response, $designs);
+		$design = (object) array();
+		$design->id = mysql_result($result,$i,"id");
+		$design->created = date("m/d/Y", strtotime(mysql_result($result,$i,"created")));
+		$design->updated = date("m/d/Y", strtotime(mysql_result($result,$i,"updated")));
+		$design->name = mysql_result($result,$i,"name");
+		$design->user = mysql_result($result,$i,"user");
+		$design->product = mysql_result($result,$i,"product");
+		$design->variations = mysql_result($result,$i,"variations");
+		$design->status = mysql_result($result,$i,"status");
+		$design->active = mysql_result($result,$i,"active");
+		$design->images = mysql_result($result,$i,"images");
+		$design->productStatus = $productStatuses[$design->product];
+		array_push($response, $design);
 	}
 	echo json_encode($response);
 	return;
