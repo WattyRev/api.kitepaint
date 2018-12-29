@@ -26,6 +26,7 @@ function getProductStatusesById() {
 	for ($i = 0; $i < $num; $i++) {
 		$response[mysql_result($result,$i,"id")] = mysql_result($result,$i,"status");
 	}
+	var_dump($response);
 	return $response;
 }
 
