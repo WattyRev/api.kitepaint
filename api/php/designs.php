@@ -88,7 +88,7 @@ if ($_GET){
 			$design->status = mysql_result($result,$i,"status");
 			$design->active = mysql_result($result,$i,"active");
 			$design->images = mysql_result($result,$i,"images");
-			$design->productStatus = $productStatuses[$design.product];
+			$design->productStatus = $productStatuses[$design->product];
 			echo "design:";
 			var_dump($design);
 			array_push($response, $design);
