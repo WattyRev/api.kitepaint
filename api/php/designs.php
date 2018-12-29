@@ -32,6 +32,8 @@ function getProductStatusesById() {
 
 if ($_GET){
 	$productStatuses = getProductStatusesById();
+	echo "product statuses:";
+	var_dump($productStatuses);
 	$status = '';
 	if (isset($_GET['filter'])) {
 		$filter = "";
@@ -72,6 +74,8 @@ if ($_GET){
 		$num = mysql_num_rows($result);
 		mysql_close();
 		$response = array();
+		echo "Num:";
+		var_dump($num);
 		for ($i = 0; $i < $num; $i++) {
 			$design = (object) array();
 			$design->id = mysql_result($result,$i,"id");
@@ -85,6 +89,8 @@ if ($_GET){
 			$design->active = mysql_result($result,$i,"active");
 			$design->images = mysql_result($result,$i,"images");
 			$design->productStatus = $productStatuses[$design.product];
+			echo "design:";
+			var_dump($design);
 			array_push($response, $design);
 		}
 		echo JSON_encode($response);
