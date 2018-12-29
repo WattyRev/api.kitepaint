@@ -22,7 +22,7 @@ function getProductStatusesById() {
 	$num = mysql_num_rows($result);
 
 	// Cast SQL response into a key value pair.
-	$response = (object) array();
+	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$response[mysql_result($result,$i,"id")] = mysql_result($result,$i,"status");
 	}
