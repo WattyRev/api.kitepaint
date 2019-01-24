@@ -17,7 +17,6 @@ if ($_GET){
 	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
 	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
-	var_dump($queryString);
 	$query = sprintf($queryString);
 
 	$result = mysql_query($query);
