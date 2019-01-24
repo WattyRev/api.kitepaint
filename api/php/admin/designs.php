@@ -16,7 +16,9 @@ if ($_GET){
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
-	$query = sprintf("SELECT * FROM designs $filter $order $limit $skip");
+	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
+	var_dump($queryString);
+	$query = sprintf($queryString);
 
 	$result = mysql_query($query);
 	$num = mysql_num_rows($result);
