@@ -13,9 +13,10 @@ if ($_GET){
 			$filter .= "$metric  =  $value";
 		}
 	}
-	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
-	$query = sprintf("SELECT * FROM designs $filter $order $limit");
+	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
+	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
+	$query = sprintf("SELECT * FROM designs $filter $skip $order $limit");
 
 	$result = mysql_query($query);
 	$num = mysql_num_rows($result);
