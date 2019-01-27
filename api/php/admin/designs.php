@@ -61,7 +61,7 @@ if ($_GET){
 
 	//Update
 	$id = $_POST['id'];
-	$vars = array();
+	$vars = (object) array();
 
 	if (isset($_POST['active'])) {
 		$vars->active = $_POST['active'] === 'true' ? '1' : '0';
