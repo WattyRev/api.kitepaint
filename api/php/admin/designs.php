@@ -63,23 +63,23 @@ if ($_GET){
 	$id = $_POST['id'];
 	$vars = array();
 
-	if ($_POST['active']) {
+	if (isset($_POST['active'])) {
 		$vars->active = $_POST['active'] === 'true' ? '1' : '0';
 	}
 
-	if ($_POST['user']) {
+	if (isset($_POST['user'])) {
 		$vars->user = $_POST['user'];
 	}
 
-	if ($_POST['status']) {
+	if (isset($_POST['status'])) {
 		$vars->status = $_POST['status'];
 	}
 
-	if ($_POST['name']) {
+	if (isset($_POST['name'])) {
 		$vars->name = $_POST['name'];
 	}
 
-	if ($_POST['variations']) {
+	if (isset($_POST['variations'])) {
 		$vars->variations = $_POST['variations'];
 	}
 
