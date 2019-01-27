@@ -61,12 +61,27 @@ if ($_GET){
 
 	//Update
 	$id = $_POST['id'];
-	$vars = array(
-		'active' => $_POST['active'] === 'true' ? '1' : '0',
-		'name' => $_POST['name'],
-		'user' => $_POST['user'],
-		'status' => $_POST['status']
-	);
+	$vars = array();
+
+	if ($_POST['active']) {
+		$vars->active = $_POST['active'] === 'true' ? '1' : '0';
+	}
+
+	if ($_POST['user']) {
+		$vars->user = $_POST['user'];
+	}
+
+	if ($_POST['status']) {
+		$vars->status = $_POST['status'];
+	}
+
+	if ($_POST['name']) {
+		$vars->name = $_POST['name'];
+	}
+
+	if ($_POST['variations']) {
+		$vars->variations = $_POST['variations'];
+	}
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update designs set $metric = '%s' where id = '%s'",
