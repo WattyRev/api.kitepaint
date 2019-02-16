@@ -13,6 +13,12 @@ function changeEmail($loginid, $email){
 
     }
 
+    if (user_email_exists($email)) {
+      $response->valid = false;
+      $response->message = 'An account already exists with this email address';
+      return $response;
+    }
+
     // now we update the email in the database
     $query = sprintf("update login set email = '%s' where loginid = '%s'",
         mysql_real_escape_string($email), mysql_real_escape_string($loginid));
@@ -146,6 +152,25 @@ function user_exists($username) {
 
     return false;
 }
+
+function user_email_exists($email) {
+  if (!valid_email($email)) {
+      return false;
+  }
+
+  $query = sprintf("SELECT loginid FROM login WHERE email = '%s' LIMIT 1",
+      mysql_real_escape_string($email));
+
+  $result = mysql_query($query);
+
+  if (mysql_num_rows($result) > 0) {
+      return true;
+  } else {
+      return false;
+  }
+
+  return false;
+}
 function retailer_exists($username) {
     if (!valid_username($username)) {
         return false;
@@ -209,6 +234,10 @@ function registerNewUser($username, $password, $password2, $email) {
         $response->valid = false;
         $response->message = 'Invalid email';
         return $response;
+    } elseif (user_email_exists($email)) {
+        $response->valid = false;
+        $response->message = 'An account already exists with this email address';
+        return $response;
     } elseif ($password != $password2) {
         $response->valid = false;
         $response->message = 'Passwords do not match';
@@ -261,6 +290,11 @@ function lostPassword($username, $email) {
     } else if (!valid_email($email)) {
         $response->valid = false;
         $response->message = 'Invalid email';
+        return $response;
+    }
+    else if (!user_email_exists($email)) {
+        $response->valid = false;
+        $response->message = 'No account exists for ' . $email;
         return $response;
     }
 
