@@ -67,7 +67,7 @@ function sendMail($to, $subject, $message, $from, $format) {
 
 function sendActivationEmail($username, $password, $uid, $email, $actcode) {
 	global $domain;
-	$link = "https://$domain/#!/activate?uid=$uid&actcode=$actcode";
+	$link = "https://$domain/activate/$uid/$actcode";
 	$message = "
 	Hello $username,
 

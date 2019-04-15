@@ -13,9 +13,11 @@ if ($_GET){
 			$filter .= "$metric  =  $value";
 		}
 	}
-	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
-	$query = sprintf("SELECT * FROM designs $filter $order $limit");
+	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
+	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
+	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
+	$query = sprintf($queryString);
 
 	$result = mysql_query($query);
 	$num = mysql_num_rows($result);
@@ -59,12 +61,27 @@ if ($_GET){
 
 	//Update
 	$id = $_POST['id'];
-	$vars = array(
-		'active' => $_POST['active'] === 'true' ? '1' : '0',
-		'name' => $_POST['name'],
-		'user' => $_POST['user'],
-		'status' => $_POST['status']
-	);
+	$vars = (object) array();
+
+	if (isset($_POST['active'])) {
+		$vars->active = $_POST['active'] === 'true' ? '1' : '0';
+	}
+
+	if (isset($_POST['user'])) {
+		$vars->user = $_POST['user'];
+	}
+
+	if (isset($_POST['status'])) {
+		$vars->status = $_POST['status'];
+	}
+
+	if (isset($_POST['name'])) {
+		$vars->name = $_POST['name'];
+	}
+
+	if (isset($_POST['variations'])) {
+		$vars->variations = $_POST['variations'];
+	}
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update designs set $metric = '%s' where id = '%s'",
