@@ -5,11 +5,14 @@
 require_once "header.php";
 
 function updateDesigns($skip, $limit, $variationsByProduct) {
+    echo "<p>Starting batch of $limit, starting at $skip</p>";
+
     $query = sprintf("SELECT id,variations,product FROM designs ORDER BY id LIMIT $skip, $limit");
     $result = mysql_query($query);
     $num = mysql_num_rows($result);
     for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
+        echo "<p>Processing design with ID $id</p>";
         $productId = mysql_result($result,$i,"product");
         $variations = json_decode(mysql_result($result,$i,"variations"));
 
@@ -22,11 +25,20 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
 
         var_dump($variations);
         echo "\n\n\n";
-        $variationsJson = json_encode($variations);
-
+        // $variationsJson = json_encode($variations);
+        //
         // $sql = sprintf("UPDATE designs SET variations = $variationsJson WHERE id = $id");
-        // mysql_result($sql);
+        // if (!mysql_result($sql)) {
+        //     echo "<p>Failed to update design with ID $id</p>";
+        //     return;
+        // };
+        // echo "<p>Updated design with ID $id</p>";
     }
+    // if ($num === $limit) {
+    //     updateDesigns($skip + $limit, $limit, $variationsByProduct);
+    // } else {
+    //     echo "<p>No more records to update.</p>";
+    // }
 }
 
 function getVariationsByProduct() {
@@ -48,9 +60,6 @@ function getVariationsByProduct() {
         }
         $variationsByProduct->$productId->$variationName = $variation;
     }
-
-    var_dump($variationsByProduct);
-    echo "\n\n\n";
     return $variationsByProduct;
 }
 
