@@ -63,6 +63,8 @@ function getAllProducts() {
 	$num = mysql_num_rows($result);
 	mysql_close();
 	$response = array();
+
+    var_dump(mysql_error());
 	for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
 		$product = (object) array();
@@ -81,7 +83,7 @@ function getAllProducts() {
 }
 
 function getVariations($productId) {
-    echo "getting variations for $productId \n";
+    echo "getting variations for productId: $productId \n";
     $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
     $result = mysql_query($query);
 
@@ -91,7 +93,6 @@ function getVariations($productId) {
     }
 
     $num = mysql_num_rows($result);
-    echo "got $num records. \n";
     $variations = array();
     for($i = 0; $i < $num; $i++) {
         $variation = (object) array();
