@@ -21,8 +21,10 @@ function getProducts($filter, $return) {
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
         $productId = mysql_result($result,$i,'id');
+        var_dump("Processing product with ID $productId");
 		$product = (object) array();
 		foreach ($return as $key=>$metric){
+            var_dump("Processing metric $metric");
             if ($metric === 'variations') {
                 $variationsQuery = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex");
             	$variationsResult = mysql_query($variationsQuery);
