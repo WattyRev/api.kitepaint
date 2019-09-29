@@ -159,12 +159,13 @@ function updateProduct($postData) {
 
         // Update existing variation
         if (isset($variation->id)) {
+            echo "Updating variation $variation->id, $variation->name";
             $variationId = $variation->id;
             array_push($touchedIds, $variationId);
-            $sql = sprintf("update variations set name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($index), mysql_real_escape_string($variationId));
+            $sql = sprintf("UPDATE variations SET name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($index), mysql_real_escape_string($variationId));
         } else {
             // Create new variation
-            $sql = sprintf("insert into variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($id), mysql_real_escape_string($index));
+            $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($id), mysql_real_escape_string($index));
         }
     }
     // Delete unmentioned variations
