@@ -91,6 +91,7 @@ function getVariations($productId) {
         $variation->name = mysql_result($variationsResult,$i,'name');
         $variation->svg = mysql_result($variationsResult,$i,'svg');
         $variation->sortIndex = intval(mysql_result($variationsResult,$i,'sortIndex'));
+        array_push($variations, $variation);
     }
     return $variations;
 }
