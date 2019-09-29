@@ -202,12 +202,12 @@ if ($_POST) {
 
 	//Create
 	if (isset($_POST['new'])) {
-        echo createProduct($POST);
+        echo createProduct($_POST);
         return;
 	}
 
 	//Update
-    echo updateProduct($POST);
+    echo updateProduct($_POST);
     return;
 }
 
