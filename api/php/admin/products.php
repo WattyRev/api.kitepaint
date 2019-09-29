@@ -46,7 +46,6 @@ function getProducts($filter, $return) {
 		}
 		array_push($response, $product);
 	}
-	mysql_close();
 	return JSON_encode($response);
 }
 
@@ -198,17 +197,20 @@ if ($_POST) {
 	//Delete
 	if (isset($_POST['delete'])) {
 		echo deleteProduct($_POST['id']);
+    	mysql_close();
         return;
 	}
 
 	//Create
 	if (isset($_POST['new'])) {
         echo createProduct($_POST);
+    	mysql_close();
         return;
 	}
 
 	//Update
     echo updateProduct($_POST);
+	mysql_close();
     return;
 }
 
