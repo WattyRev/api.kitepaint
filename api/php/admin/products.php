@@ -159,10 +159,14 @@ function updateProduct($postData) {
 
         // Update existing variation
         if (isset($variation->id)) {
-            echo "Updating variation $variation->id, $variation->name";
             $variationId = $variation->id;
             array_push($touchedIds, $variationId);
             $sql = sprintf("UPDATE variations SET name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($index), mysql_real_escape_string($variationId));
+
+            if (!mysql_query($sql)) {
+    			$response->valid = false;
+    			$response->message = 'Unable to update variation ' . $variationId;
+    		}
         } else {
             // Create new variation
             $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($id), mysql_real_escape_string($index));
