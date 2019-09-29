@@ -81,7 +81,8 @@ function getAllProducts() {
 }
 
 function getVariations($productId) {
-    $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex");
+    echo "getting variations for $productId \r\n";
+    $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
     $result = mysql_query($query);
     $num = mysql_num_rows($result);
     $variations = array();
@@ -93,6 +94,8 @@ function getVariations($productId) {
         $variation->sortIndex = intval(mysql_result($variationsResult,$i,'sortIndex'));
         array_push($variations, $variation);
     }
+    echo "got variations for $productId \r\n";
+    var_dump($variations);
     return $variations;
 }
 
