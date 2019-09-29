@@ -84,6 +84,12 @@ function getVariations($productId) {
     echo "getting variations for $productId \n";
     $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
     $result = mysql_query($query);
+
+    if (!$result) {
+        echo "Failed to get variations";
+        var_dump(mysql_error($query));
+    }
+
     $num = mysql_num_rows($result);
     echo "got $num records. \n";
     $variations = array();
