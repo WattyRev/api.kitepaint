@@ -32,7 +32,7 @@ function getProducts($filter, $return) {
                     $variation = (object) array();
                     $variation->id = mysql_result($variationsResult,$i,'id');
                     $variation->name = mysql_result($variationsResult,$i,'name');
-                    $variation->svg = mysql_result($variationsResult,$i,'svg');
+                    // $variation->svg = mysql_result($variationsResult,$i,'svg');
                     $variation->sortIndex = mysql_result($variationsResult,$i,'sortIndex');
                     array_push($variations, $variation);
                 }
@@ -184,7 +184,8 @@ function updateProduct($postData) {
 }
 
 if ($_GET){
-    echo getProducts($_GET['filter'], $_GET['return']);
+    $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+    echo getProducts($filter, $_GET['return']);
     return;
 }
 if ($_POST) {
