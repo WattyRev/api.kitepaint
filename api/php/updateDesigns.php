@@ -12,9 +12,11 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
     $num = mysql_num_rows($result);
     for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
-        echo "<p>Processing design with ID $id</p>";
         $productId = mysql_result($result,$i,"product");
+        echo "<p>Processing design with ID $id, product ID $productId</p>";
         $variations = json_decode(mysql_result($result,$i,"variations"));
+
+        var_dump($variations);
 
         foreach($variations as $variation) {
             $productVariation = $variationsByProduct->$productId->$variation->name;
