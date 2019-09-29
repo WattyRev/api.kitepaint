@@ -83,11 +83,11 @@ function createProduct($postData) {
 
     $name = $postData['name'];
     $manufacturer = $postData['manufacturer'];
-    $url = $postData['url'] || '';
+    $url = isset($postData['url']) ? $postData['url'] : '';
     $colors = $postData['colors'];
     $variations = json_decode($postData['variations']);
-    $notes = $postData['notes'] || '';
-    $embed = $postData['embed'] || '';
+    $notes = isset($postData['notes']) ? $postData['notes'] : '';
+    $embed = isset($postData['embed']) ? $postData['embed'] : '';
 
     // Create the product
     $sql = sprintf("insert into products (status,name,manufacturer,created,url,colors) value (0,'%s','%s',now(),'%s','%s','%s')",
