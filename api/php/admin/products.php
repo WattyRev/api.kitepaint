@@ -37,6 +37,7 @@ function getProducts($filter, $return) {
                     array_push($variations, $variation);
                 }
                 $product->variations = $variations;
+                return;
             }
 			$product->$metric = mysql_result($result,$i,$metric);
 			if ($metric === 'created') {
