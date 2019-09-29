@@ -87,7 +87,7 @@ function getVariations($productId) {
 
     if (!$result) {
         echo "Failed to get variations";
-        var_dump(mysql_error($query));
+        var_dump(mysql_error());
     }
 
     $num = mysql_num_rows($result);
