@@ -184,7 +184,7 @@ function updateProduct($postData) {
 }
 
 if ($_GET){
-    $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+    $filter = isset($_GET['filter']) ? $_GET['filter'] : null;
     echo getProducts($filter, $_GET['return']);
     return;
 }
