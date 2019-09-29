@@ -30,12 +30,12 @@ function getProducts($filter, $return) {
             	$variationsResult = mysql_query($variationsQuery);
             	$variationsNum = mysql_num_rows($variationsResult);
                 $variations = array();
-                for($i = 0; $i < $variationsNum; $i++) {
+                for($j = 0; $j < $variationsNum; $j++) {
                     $variation = (object) array();
-                    $variation->id = mysql_result($variationsResult,$i,'id');
-                    $variation->name = mysql_result($variationsResult,$i,'name');
-                    // $variation->svg = mysql_result($variationsResult,$i,'svg');
-                    $variation->sortIndex = mysql_result($variationsResult,$i,'sortIndex');
+                    $variation->id = mysql_result($variationsResult,$j,'id');
+                    $variation->name = mysql_result($variationsResult,$j,'name');
+                    // $variation->svg = mysql_result($variationsResult,$j,'svg');
+                    $variation->sortIndex = mysql_result($variationsResult,$j,'sortIndex');
                     array_push($variations, $variation);
                 }
                 $product->variations = $variations;
