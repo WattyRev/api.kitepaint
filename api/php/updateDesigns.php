@@ -28,6 +28,7 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
         $sql = sprintf("UPDATE designs SET variations = $variationsJson WHERE id = $id");
         if (!mysql_result($sql)) {
             echo "<p>Failed to update design with ID $id</p>";
+            echo "<p>" . mysql_error() . "</p>";
             return;
         };
         echo "<p>Updated design with ID $id</p>";
