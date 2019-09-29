@@ -15,7 +15,6 @@ function getProducts($filter) {
 
     $result = mysql_query($query);
     $num = mysql_num_rows($result);
-    mysql_close();
     $response = array();
     for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
@@ -38,7 +37,6 @@ function getProduct($id) {
     $query = sprintf("SELECT * FROM products WHERE id = " . $id);
     $result = mysql_query($query);
 	$num = mysql_num_rows($result);
-	mysql_close();
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
@@ -61,10 +59,7 @@ function getAllProducts() {
     $query = sprintf("SELECT * FROM products WHERE status in (\"1\", \"2\")");
     $result = mysql_query($query);
 	$num = mysql_num_rows($result);
-	mysql_close();
 	$response = array();
-
-    var_dump(mysql_error());
 	for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
 		$product = (object) array();
@@ -83,18 +78,8 @@ function getAllProducts() {
 }
 
 function getVariations($productId) {
-    echo "getting variations for productId: $productId \n";
-    $query = sprintf("SELECT * FROM variations");
+    $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
     $result = mysql_query($query);
-
-    var_dump($result);
-    echo "\n";
-    if (!$result) {
-        echo "Failed to get variations \n";
-        echo mysql_error();
-        echo "\n";
-    }
-
     $num = mysql_num_rows($result);
     $variations = array();
     for($i = 0; $i < $num; $i++) {
@@ -105,20 +90,22 @@ function getVariations($productId) {
         $variation->sortIndex = intval(mysql_result($result,$i,'sortIndex'));
         array_push($variations, $variation);
     }
-    var_dump($variations);
     return $variations;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (isset($_GET['filter'])) {
         echo getProducts($_GET['filter']);
+        mysql_close();
         return;
 	}
 
 	if (isset($_GET['id'])) {
 		echo getProduct($_GET['id']);
+        mysql_close();
         return;
 	}
 	echo getAllProducts();
+    mysql_close();
     return;
 }
