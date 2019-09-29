@@ -134,7 +134,7 @@ function updateProduct($postData) {
 	);
 
 	foreach($vars as $metric => $val){
-		$query = sprintf("update products set $metric = '%s' where id = '%s'",
+		$query = sprintf("UPDATE products SET $metric = '%s' WHERE id = '%s'",
 			mysql_real_escape_string($val), mysql_real_escape_string($id));
 
 		if (!mysql_query($query)) {
