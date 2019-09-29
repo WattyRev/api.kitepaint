@@ -40,6 +40,8 @@ function getProduct($id) {
 	$num = mysql_num_rows($result);
 	mysql_close();
 	$response = array();
+
+    echo mysql_error();
 	for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
 		$product = (object) array();
