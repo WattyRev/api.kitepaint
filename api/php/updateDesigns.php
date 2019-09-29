@@ -16,10 +16,9 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
         echo "<p>Processing design with ID $id, product ID $productId</p>";
         $variations = json_decode(mysql_result($result,$i,"variations"));
 
-        var_dump($variations);
-
         foreach($variations as $variation) {
-            $productVariation = $variationsByProduct->$productId->$variation->name;
+            $variationName = $variation->name;
+            $productVariation = $variationsByProduct->$productId->$variationName;
             $variation->id = $productVariation->id;
             $variation->sortIndex = $productVariation->sortIndex;
             $variation->productId = $productVariation->productId;
