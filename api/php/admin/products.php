@@ -170,7 +170,7 @@ function updateProduct($postData) {
     // Delete unmentioned variations
     foreach ($storedIds as $storedId) {
         if (in_array($storedId, $touchedIds)) {
-            return;
+            continue;
         }
         $sql = sprintf("DELETE from variations WHERE id = '%s'", mysql_real_escape_string($storedId));
     }
