@@ -33,7 +33,7 @@ function getProducts($filter, $return) {
                     $variation->id = mysql_result($variationsResult,$variationIndex,'id');
                     $variation->name = mysql_result($variationsResult,$variationIndex,'name');
                     $variation->svg = mysql_result($variationsResult,$variationIndex,'svg');
-                    $variation->sortIndex = mysql_result($variationsResult,$variationIndex,'sortIndex');
+                    $variation->sortIndex = intval(mysql_result($variationsResult,$variationIndex,'sortIndex'));
                     array_push($variations, $variation);
                 }
                 $product->variations = $variations;
@@ -87,7 +87,7 @@ function createProduct($postData) {
     $url = isset($postData['url']) ? $postData['url'] : '';
     $colors = $postData['colors'];
     $variations = json_decode($postData['variations']);
-    $notes = isset($postData['notes']) ? $postData['notes'] : '';
+    $notes = isset($postData['notes']) ? $postData['notes'] : '[""]';
     $embed = isset($postData['embed']) ? $postData['embed'] : '';
 
     // Create the product
@@ -153,7 +153,7 @@ function updateProduct($postData) {
     	$num = mysql_num_rows($result);
     	for ($i = 0; $i < $num; $i++) {
             $variationId = mysql_result($result,$i,'id');
-    		array_push($variationIds, $variationId);
+    		array_push($storedIds, $variationId);
     	}
 
 
@@ -161,14 +161,10 @@ function updateProduct($postData) {
         if (isset($variation->id)) {
             $variationId = $variation->id;
             array_push($touchedIds, $variationId);
-            $sql = sprintf("update variations set name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'",
-            mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg, mysql_real_escape_string($index))
-            , mysql_real_escape_string($variationid));
+            $sql = sprintf("update variations set name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($index), mysql_real_escape_string($variationId));
         } else {
             // Create new variation
-            $sql = sprintf("insert into variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')",
-            mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg)
-            , mysql_real_escape_string($id), mysql_real_escape_string($index));
+            $sql = sprintf("insert into variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($id), mysql_real_escape_string($index));
         }
     }
     // Delete unmentioned variations
