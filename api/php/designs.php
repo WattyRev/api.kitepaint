@@ -132,7 +132,7 @@ if ($_GET){
 	if (isset($_POST['delete'])) {
 		$id = $_POST['id'];
 
-		$query = sprintf("update designs set active = 0 where id = '%s'",
+		$query = sprintf("UPDATE designs SET active = 0 WHERE id = '%s'",
 			mysql_real_escape_string($id));
 
 		if (mysql_query($query)) {
@@ -140,7 +140,7 @@ if ($_GET){
 			$response->valid = false;
 			$response->message = 'Unable to delete design';
 		}
-		$query = sprintf("update designs set updated = now() where id = '%s'",
+		$query = sprintf("UPDATE designs SET updated = now() WHERE id = '%s'",
 		mysql_real_escape_string($id));
 
 		if (mysql_query($query)) {
@@ -161,7 +161,7 @@ if ($_GET){
 
 		$code = generate_code(20);
 
-		$sql = sprintf("insert into designs (created, updated, name, user, product, variations, status) value (now(), now(), '%s', '%s', '%s', '%s', '%s')",
+		$sql = sprintf("INSERT INTO designs (created, updated, name, user, product, variations, status) value (now(), now(), '%s', '%s', '%s', '%s', '%s')",
 		mysql_real_escape_string($name), mysql_real_escape_string($user)
 		, mysql_real_escape_string($product), mysql_real_escape_string($variations), mysql_real_escape_string($status));
 
