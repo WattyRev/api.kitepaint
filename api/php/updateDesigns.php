@@ -13,7 +13,7 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
     for ($i = 0; $i < $num; $i++) {
         $id = mysql_result($result,$i,"id");
         $productId = mysql_result($result,$i,"product");
-        echo "<p>Processing design with ID $id, product ID $productId</p>";
+        echo "<p>Design $id - Processing design</p>";
         $variations = json_decode(mysql_result($result,$i,"variations"));
 
         foreach($variations as $variation) {
@@ -25,13 +25,13 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
         }
 
         $variationsJson = json_encode($variations);
-        $sql = sprintf("UPDATE designs SET variations = $variationsJson WHERE id = $id");
+        $sql = sprintf("UPDATE designs SET variations = '%s' WHERE id = $id", mysql_real_escape_string($variationsJson));
         if (!mysql_result($sql)) {
-            echo "<p>Failed to update design with ID $id</p>";
+            echo "<p>Design $id - Failed to update design</p>";
             echo "<p>" . mysql_error() . "</p>";
             return;
         };
-        echo "<p>Updated design with ID $id</p>";
+        echo "<p>Design $id - Updated design</p>";
     }
     if ($num === $limit) {
         updateDesigns($skip + $limit, $limit, $variationsByProduct);
