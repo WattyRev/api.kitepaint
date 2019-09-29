@@ -90,9 +90,8 @@ function createProduct($postData) {
     $embed = isset($postData['embed']) ? $postData['embed'] : '';
 
     // Create the product
-    $sql = sprintf("insert into products (status,name,manufacturer,created,url,colors) value (0,'%s','%s',now(),'%s','%s','%s')",
-    mysql_real_escape_string($name), mysql_real_escape_string($manufacturer)
-    , mysql_real_escape_string($url), mysql_real_escape_string($colors));
+    $sql = sprintf("INSERT INTO products (status,name,manufacturer,created,url,colors) value (0,'%s','%s',now(),'%s','%s')",
+    mysql_real_escape_string($name), mysql_real_escape_string($manufacturer), mysql_real_escape_string($url), mysql_real_escape_string($colors));
 
 
     if (!mysql_query($sql)) {
