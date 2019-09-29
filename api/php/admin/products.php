@@ -1,12 +1,12 @@
 <?php
 require_once "header.php";
 
-function getProducts($filter) {
+function getProducts($filter, $return) {
     $query = "";
-	if(isset($_GET['filter'])){
+	if(isset($filter)){
 		$query .= "WHERE";
 		$count = 0;
-		foreach($_GET['filter'] as $metric => $value){
+		foreach($filter as $metric => $value){
 			$count ++;
 			if ($count > 1) {
 				$query .= ' AND ';
@@ -22,7 +22,7 @@ function getProducts($filter) {
 	for ($i = 0; $i < $num; $i++) {
         $productId = mysql_result($result,$i,'id');
 		$product = (object) array();
-		foreach ($_GET['return'] as $key=>$metric){
+		foreach ($return as $key=>$metric){
             if ($metric === 'variations') {
                 $variationsQuery = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex");
             	$variationsResult = mysql_query($variationsQuery);
@@ -34,6 +34,7 @@ function getProducts($filter) {
                     $variation->name = mysql_result($variationsResult,$i,'name');
                     $variation->svg = mysql_result($variationsResult,$i,'svg');
                     $variation->sortIndex = mysql_result($variationsResult,$i,'sortIndex');
+                    array_push($variations, $variation);
                 }
                 $product->variations = $variations;
             }
@@ -183,7 +184,7 @@ function updateProduct($postData) {
 }
 
 if ($_GET){
-    echo getProducts($_GET['filter']);
+    echo getProducts($_GET['filter'], $_GET['return']);
     return;
 }
 if ($_POST) {
