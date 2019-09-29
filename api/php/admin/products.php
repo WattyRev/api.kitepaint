@@ -21,10 +21,8 @@ function getProducts($filter, $return) {
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
         $productId = mysql_result($result,$i,'id');
-        echo "Processing product with ID $productId \n";
 		$product = (object) array();
 		foreach ($return as $key=>$metric){
-            echo "  Processing metric $metric \n";
             if ($metric === 'variations') {
                 $variationsQuery = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex");
             	$variationsResult = mysql_query($variationsQuery);
@@ -34,7 +32,7 @@ function getProducts($filter, $return) {
                     $variation = (object) array();
                     $variation->id = mysql_result($variationsResult,$variationIndex,'id');
                     $variation->name = mysql_result($variationsResult,$variationIndex,'name');
-                    // $variation->svg = mysql_result($variationsResult,$variationIndex,'svg');
+                    $variation->svg = mysql_result($variationsResult,$variationIndex,'svg');
                     $variation->sortIndex = mysql_result($variationsResult,$variationIndex,'sortIndex');
                     array_push($variations, $variation);
                 }
