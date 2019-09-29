@@ -20,7 +20,7 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
             $variationName = $variation->name;
             $productVariation = $variationsByProduct->$productId->$variationName;
             $variation->id = $productVariation->id;
-            $variation->sortIndex = $productVariation->sortIndex;
+            $variation->sortIndex = intval($productVariation->sortIndex);
             $variation->productId = $productVariation->productId;
         }
 
@@ -62,5 +62,5 @@ function getVariationsByProduct() {
     return $variationsByProduct;
 }
 
-updateDesigns(0, 10, getVariationsByProduct());
+updateDesigns(0, 100, getVariationsByProduct());
  ?>
