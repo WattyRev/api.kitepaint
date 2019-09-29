@@ -104,7 +104,7 @@ function createProduct($postData) {
     $productId = mysql_insert_id();
     foreach($variations as $index=>$variation) {
         $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')",
-        mysql_real_escape_string($variation['name']), mysql_real_escape_string($variation['svg'])
+        mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg)
         , mysql_real_escape_string($productId), mysql_real_escape_string($index));
 
         if (!mysql_query($sql)) {
@@ -122,7 +122,7 @@ function updateProduct($postData) {
 		'message' => ''
 	);
     $id = $postData['id'];
-    $variations = $postData['variations'];
+    $variations = json_decode($postData['variations']);
 	$vars = array(
 		'status' => $postData['status'],
 		'name' => $postData['name'],
@@ -157,16 +157,16 @@ function updateProduct($postData) {
 
 
         // Update existing variation
-        if (isset($variation['id'])) {
-            $variationId = $variation['id'];
+        if (isset($variation->id)) {
+            $variationId = $variation->id;
             array_push($touchedIds, $variationId);
             $sql = sprintf("update variations set name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'",
-            mysql_real_escape_string($variation['name']), mysql_real_escape_string($variation['svg'], mysql_real_escape_string($index))
+            mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg, mysql_real_escape_string($index))
             , mysql_real_escape_string($variationid));
         } else {
             // Create new variation
             $sql = sprintf("insert into variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')",
-            mysql_real_escape_string($variation['name']), mysql_real_escape_string($variation['svg'])
+            mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg)
             , mysql_real_escape_string($id), mysql_real_escape_string($index));
         }
     }
