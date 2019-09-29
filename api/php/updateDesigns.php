@@ -24,22 +24,19 @@ function updateDesigns($skip, $limit, $variationsByProduct) {
             $variation->productId = $productVariation->productId;
         }
 
-        var_dump($variations);
-        echo "\n\n\n";
-        // $variationsJson = json_encode($variations);
-        //
-        // $sql = sprintf("UPDATE designs SET variations = $variationsJson WHERE id = $id");
-        // if (!mysql_result($sql)) {
-        //     echo "<p>Failed to update design with ID $id</p>";
-        //     return;
-        // };
-        // echo "<p>Updated design with ID $id</p>";
+        $variationsJson = json_encode($variations);
+        $sql = sprintf("UPDATE designs SET variations = $variationsJson WHERE id = $id");
+        if (!mysql_result($sql)) {
+            echo "<p>Failed to update design with ID $id</p>";
+            return;
+        };
+        echo "<p>Updated design with ID $id</p>";
     }
-    // if ($num === $limit) {
-    //     updateDesigns($skip + $limit, $limit, $variationsByProduct);
-    // } else {
-    //     echo "<p>No more records to update.</p>";
-    // }
+    if ($num === $limit) {
+        updateDesigns($skip + $limit, $limit, $variationsByProduct);
+    } else {
+        echo "<p>No more records to update.</p>";
+    }
 }
 
 function getVariationsByProduct() {
