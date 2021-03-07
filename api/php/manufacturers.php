@@ -43,6 +43,7 @@ if ($_GET){
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$manufacturers = (object) array();
@@ -53,5 +54,4 @@ if ($_GET){
 		array_push($response, $manufacturers);
 	}
 	echo json_encode($response);
-	mysqli_close($conn);
 }
