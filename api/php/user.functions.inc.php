@@ -135,7 +135,7 @@ function delete_account($loginid, $password){
 }
 
 function user_exists($username) {
-    $conn = db();
+    $conn = connectToDb();
     if (!valid_username($username)) {
         return false;
     }
