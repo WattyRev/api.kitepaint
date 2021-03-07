@@ -14,6 +14,6 @@ $isProduction = (strpos($_SERVER['HTTP_HOST'], 'beta') === false);
 define("DB", $isProduction ? "r3vfan_kite_paint" : "r3vfan_kite_paint_beta");
 
 ############## Make the mysql connection ###########
-$conn = mysqli_connect(HOST, DBUSER, PASS, DB) or  die('Could not connect to mySQL!<br />Please contact the site\'s administrator.');
+define("CONNECTION", mysqli_connect(HOST, DBUSER, PASS, DB) or  die('Could not connect to mySQL!<br />Please contact the site\'s administrator.'));
 
 ?>
