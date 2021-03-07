@@ -13,7 +13,7 @@ function checkLogin($u, $p){
     if (!valid_username($u) || !valid_password($p) || !user_exists($u))
     {
         $response->valid = false;
-        $response->message = 'Invalid username or password';
+        $response->message = 'Invalid username or password.';
         return $response;
     }
 
