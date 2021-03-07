@@ -30,10 +30,13 @@ function checkLogin($u, $p){
     // If the database returns a 1 as result we know  the login was correct and we proceed.
     // If the database returns a result > 1 there are multple users
     // with the same username and password, so the login will fail.
-    if (mysqli_num_rows($result) != 1)
-    {
+    if (mysqli_num_rows($result) == 0) {
         $response->valid = false;
-        $response->message = 'Could not log in.';
+        $response->message = 'An account could not be found.';
+        return $response;
+    } elseif (mysqli_num_rows($result) != 1) {
+        $response->valid = false;
+        $response->message = 'Multiple accounts were found, so you could not be logged in, please contact us to resolve the issue.';
         return $response;
     } else {
 
@@ -51,7 +54,7 @@ function checkLogin($u, $p){
 
         if ($deleted === "1") {
             $response->valid = false;
-            $response->message = 'Invalid username or password';
+            $response->message = 'This account has been deleted';
             return $response;
         }
 
