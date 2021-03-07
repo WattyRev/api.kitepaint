@@ -135,6 +135,7 @@ function delete_account($loginid, $password){
 }
 
 function user_exists($username) {
+    var_dump($test);
     if (!valid_username($username)) {
         return false;
     }
