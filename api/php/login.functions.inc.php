@@ -2,9 +2,8 @@
 
 #### Login Functions #####
 
-$conn = connectToDb();
 function checkLogin($u, $p){
-
+    $conn = connectToDb();
     global $seed; // global because $seed is declared in the header.php file
 
 
