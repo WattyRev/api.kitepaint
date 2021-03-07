@@ -135,13 +135,13 @@ function delete_account($loginid, $password){
 }
 
 function user_exists($username) {
-    var_dump($test);
+    $conn = db();
     if (!valid_username($username)) {
         return false;
     }
     var_dump($username);
-    var_dump(CONNECTION);
-    $escapedUsername = mysqli_real_escape_string(CONNECTION, $username);
+    var_dump($conn);
+    $escapedUsername = mysqli_real_escape_string($conn, $username);
     var_dump($escapedUsername);
 
     $query = sprintf("SELECT loginid FROM login WHERE username = '%s' LIMIT 1",
@@ -149,7 +149,7 @@ function user_exists($username) {
 
     var_dump($query);
 
-    $result = mysqli_query(CONNECTION, $query);
+    $result = mysqli_query($conn, $query);
 
     var_dump($result);
 
