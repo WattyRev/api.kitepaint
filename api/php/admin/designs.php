@@ -1,5 +1,6 @@
 <?php
 require_once "header.php";
+$conn = connectToDb();
 if ($_GET){
 	$filter = "";
 	if (isset($_GET['filter'])){
@@ -16,7 +17,6 @@ if ($_GET){
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
-    $conn = connectToDb();
 	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
 	$query = sprintf($queryString);
 
@@ -42,7 +42,6 @@ if ($_GET){
 		'valid' => true,
 		'message' => ''
 	);
-    $conn = connectToDb();
 
 	//Delete
 	if (isset($_POST['delete'])) {

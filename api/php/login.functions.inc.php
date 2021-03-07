@@ -37,10 +37,7 @@ function checkLogin($u, $p){
         username = '%s' AND password = '%s'
         AND disabled = 0 AND activated = 1
         LIMIT 1;", mysqli_real_escape_string($conn, $u), mysqli_real_escape_string($conn, sha1($p . $seed)));
-    var_dump($conn);
-    var_dump($query);
     $result = mysqli_query($conn, $query);
-    var_dump($result);
     // If the database returns a 0 as result we know the login information is incorrect.
     // If the database returns a 1 as result we know  the login was correct and we proceed.
     // If the database returns a result > 1 there are multple users
@@ -169,6 +166,7 @@ function checkLogin($u, $p){
 }
 
 function updateLogin($username, $loginid, $actcode) {
+    $conn = connectToDb();
     $response = (object) array();
     $response->valid = true;
 

@@ -1,8 +1,8 @@
 <?php
 require_once "header.php";
 
-$conn = connectToDb();
 function getPublicProductIds() {
+	$conn = connectToDb();
 	// Query IDs of products that are public (status=2)
 	$query = sprintf("SELECT id FROM products WHERE status = \"2\"");
 	$result = mysqli_query($conn, $query);
@@ -17,6 +17,7 @@ function getPublicProductIds() {
 }
 
 function getProductStatusesById() {
+	$conn = connectToDb();
 	// Query the statuses of products and their ids
 	$query = sprintf("SELECT id, status FROM products");
 	$result = mysqli_query($conn, $query);
@@ -30,6 +31,8 @@ function getProductStatusesById() {
 	return $response;
 }
 
+
+$conn = connectToDb();
 
 if ($_GET){
 	$productStatuses = getProductStatusesById();

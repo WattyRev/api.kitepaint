@@ -1,8 +1,8 @@
 <?php
 
-$conn = connectToDb();
 ##### User Functions #####
 function changeEmail($loginid, $email){
+    $conn = connectToDb();
     global $seed;
     $response = (object) array();
     $response->valid = true;
@@ -34,6 +34,7 @@ function changeEmail($loginid, $email){
 }
 
 function changePassword($username, $currentpassword, $newpassword, $newpassword2){
+    $conn = connectToDb();
     global $seed;
     $response = (object) array();
     $response->valid = true;
@@ -90,6 +91,7 @@ function changePassword($username, $currentpassword, $newpassword, $newpassword2
 }
 
 function delete_account($loginid, $password){
+    $conn = connectToDb();
     global $seed;
     $response = (object) array();
     $response->valid = true;
@@ -155,6 +157,7 @@ function user_exists($username) {
 }
 
 function user_email_exists($email) {
+    $conn = connectToDb();
   if (!valid_email($email)) {
       return false;
   }
@@ -176,6 +179,7 @@ function retailer_exists($username) {
     if (!valid_username($username)) {
         return false;
     }
+    $conn = connectToDb();
 
     $query = sprintf("SELECT id FROM retailers WHERE username = '%s' LIMIT 1",
         mysqli_real_escape_string($conn, $username));
@@ -193,6 +197,7 @@ function retailer_exists($username) {
 
 
 function activateUser($uid, $actcode) {
+    $conn = connectToDb();
 
     $query = sprintf("select activated from login where loginid = '%s' and actcode = '%s' and activated = 0  limit 1",
         mysqli_real_escape_string($conn, $uid), mysqli_real_escape_string($conn, $actcode));
@@ -248,6 +253,7 @@ function registerNewUser($username, $password, $password2, $email) {
         $response->message = $username . ' has already been taken';
         return $response;
     }
+    $conn = connectToDb();
 
 
     $code = generate_code(20);
@@ -298,6 +304,7 @@ function lostPassword($username, $email) {
         $response->message = 'No account exists for ' . $email;
         return $response;
     }
+    $conn = connectToDb();
 
     $query = sprintf("select loginid from login where username = '%s' and email = '%s' limit 1",
         $username, $email);

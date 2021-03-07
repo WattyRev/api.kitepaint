@@ -1,8 +1,8 @@
 <?php
 require_once "header.php";
 
-$conn = connectToDb();
 function getProducts($filter) {
+    $conn = connectToDb();
     $querySegment = "";
     $count = 0;
     foreach($filter as $metric => $value){
@@ -35,6 +35,7 @@ function getProducts($filter) {
 }
 
 function getProduct($id) {
+    $conn = connectToDb();
     $query = sprintf("SELECT * FROM products WHERE id = " . $id);
     $result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
@@ -57,6 +58,7 @@ function getProduct($id) {
 }
 
 function getAllProducts() {
+    $conn = connectToDb();
     $query = sprintf("SELECT * FROM products WHERE status in (\"1\", \"2\")");
     $result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
@@ -79,6 +81,7 @@ function getAllProducts() {
 }
 
 function getVariations($productId) {
+    $conn = connectToDb();
     $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
     $result = mysqli_query($conn, $query);
     $num = mysqli_num_rows($result);

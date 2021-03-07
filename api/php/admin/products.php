@@ -1,8 +1,8 @@
 <?php
 require_once "header.php";
 
-$conn = connectToDb();
 function getProducts($filter, $return) {
+    $conn = connectToDb();
     $query = "";
 	if(isset($filter)){
 		$query .= "WHERE";
@@ -51,6 +51,7 @@ function getProducts($filter, $return) {
 }
 
 function deleteProduct($id) {
+    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -77,6 +78,7 @@ function deleteProduct($id) {
 }
 
 function createProduct($postData) {
+    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -118,6 +120,7 @@ function createProduct($postData) {
 }
 
 function updateProduct($postData) {
+    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
