@@ -1,7 +1,7 @@
 <?php
- 
+
 #### Login Functions #####
- 
+
 function checkLogin($u, $p){
 
     global $seed; // global because $seed is declared in the header.php file
@@ -9,14 +9,14 @@ function checkLogin($u, $p){
 
     $response = (object) array();
     $response->valid = true;
- 
+
     if (!valid_username($u) || !valid_password($p) || !user_exists($u))
     {
         $response->valid = false;
         $response->message = 'Invalid username or password';
         return $response;
     }
- 
+
     //Now let us look for the user in the database.
     $query = sprintf("
         SELECT loginid
@@ -33,7 +33,7 @@ function checkLogin($u, $p){
     if (mysqli_num_rows($result) != 1)
     {
         $response->valid = false;
-        $response->message = 'Invalid username or password';
+        $response->message = 'Could not log in.';
         return $response;
     } else {
 
@@ -57,7 +57,7 @@ function checkLogin($u, $p){
 
         // Login was successfull
         $row = mysqli_fetch_array($result);
-        
+
         $loginid = $row['loginid'];
 
         $query = sprintf("
@@ -83,7 +83,7 @@ function checkLogin($u, $p){
         $row = mysqli_fetch_array($result);
 
         $email = $row['email'];
-        
+
         $query = sprintf("
             SELECT favorites
             FROM login
@@ -123,7 +123,7 @@ function checkLogin($u, $p){
         //update last login time
         $query = sprintf("update login set last_login = now() where loginid = '%s'",
             mysqli_real_escape_string($loginid));
-     
+
         if (mysqli_query($query)) {
         } else {
             $response->valid = false;
@@ -244,7 +244,7 @@ function updateLogin($username, $loginid, $actcode) {
 
     $query = sprintf("update login set last_login = now() where loginid = '%s'",
             mysqli_real_escape_string($loginid));
-     
+
     if (mysqli_query($query)) {
         $_SESSION['username'] = $username;
         $_SESSION['loginid'] = $loginid;
@@ -260,5 +260,5 @@ function updateLogin($username, $loginid, $actcode) {
         return $response;
     }
 }
- 
+
 ?>
