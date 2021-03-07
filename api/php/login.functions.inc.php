@@ -30,14 +30,15 @@ function checkLogin($u, $p){
     }
 
     //Now let us look for the user in the database.
+    $conn = connectToDb();
     $query = sprintf("
         SELECT loginid
         FROM login
         WHERE
         username = '%s' AND password = '%s'
         AND disabled = 0 AND activated = 1
-        LIMIT 1;", mysqli_real_escape_string($u), mysqli_real_escape_string(sha1($p . $seed)));
-    $result = mysqli_query($query);
+        LIMIT 1;", mysqli_real_escape_string($conn, $u), mysqli_real_escape_string($conn, sha1($p . $seed)));
+    $result = mysqli_query($conn, $query);
     // If the database returns a 0 as result we know the login information is incorrect.
     // If the database returns a 1 as result we know  the login was correct and we proceed.
     // If the database returns a result > 1 there are multple users
@@ -59,8 +60,8 @@ function checkLogin($u, $p){
             WHERE
             username = '%s' AND password = '%s'
             AND disabled = 0 AND activated = 1
-            LIMIT 1;", mysqli_real_escape_string($u), mysqli_real_escape_string(sha1($p . $seed)));
-        $deleted_result = mysqli_query($query);
+            LIMIT 1;", mysqli_real_escape_string($conn, $u), mysqli_real_escape_string($conn, sha1($p . $seed)));
+        $deleted_result = mysqli_query($conn, $query);
         $deleted_row = mysqli_fetch_array($deleted_result);
         $deleted = $deleted_row['deleted'];
 
@@ -80,9 +81,9 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysqli_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysqli_query($query);
+        $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result);
 
         $actcode = $row['actcode'];
@@ -92,9 +93,9 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysqli_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysqli_query($query);
+        $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result);
 
         $email = $row['email'];
@@ -104,9 +105,9 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysqli_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysqli_query($query);
+        $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result);
 
         $favorites = $row['favorites'];
@@ -116,9 +117,9 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysqli_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysqli_query($query);
+        $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result);
 
         $first_name = $row['first_name'];
@@ -128,18 +129,18 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysqli_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysqli_query($query);
+        $result = mysqli_query($conn, $query);
         $row = mysqli_fetch_array($result);
 
         $last_name = $row['last_name'];
 
         //update last login time
         $query = sprintf("update login set last_login = now() where loginid = '%s'",
-            mysqli_real_escape_string($loginid));
+            mysqli_real_escape_string($conn, $loginid));
 
-        if (mysqli_query($query)) {
+        if (mysqli_query($conn, $query)) {
         } else {
             $response->valid = false;
             $response->message = 'Unable to log in';
