@@ -16,30 +16,30 @@ function getProducts($filter, $return) {
 	}
 	$query = sprintf("SELECT * FROM products $query");
 
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
+	$result = mysqli_query($query);
+	$num = mysqli_num_rows($result);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-        $productId = mysql_result($result,$i,'id');
+        $productId = mysqli_result($result,$i,'id');
 		$product = (object) array();
 		foreach ($return as $key=>$metric){
             if ($metric === 'variations') {
                 $variationsQuery = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex");
-            	$variationsResult = mysql_query($variationsQuery);
-            	$variationsNum = mysql_num_rows($variationsResult);
+            	$variationsResult = mysqli_query($variationsQuery);
+            	$variationsNum = mysqli_num_rows($variationsResult);
                 $variations = array();
                 for($variationIndex = 0; $variationIndex < $variationsNum; $variationIndex++) {
                     $variation = (object) array();
-                    $variation->id = mysql_result($variationsResult,$variationIndex,'id');
-                    $variation->name = mysql_result($variationsResult,$variationIndex,'name');
-                    $variation->svg = mysql_result($variationsResult,$variationIndex,'svg');
-                    $variation->sortIndex = intval(mysql_result($variationsResult,$variationIndex,'sortIndex'));
+                    $variation->id = mysqli_result($variationsResult,$variationIndex,'id');
+                    $variation->name = mysqli_result($variationsResult,$variationIndex,'name');
+                    $variation->svg = mysqli_result($variationsResult,$variationIndex,'svg');
+                    $variation->sortIndex = intval(mysqli_result($variationsResult,$variationIndex,'sortIndex'));
                     array_push($variations, $variation);
                 }
                 $product->variations = $variations;
                 continue;
             }
-			$product->$metric = mysql_result($result,$i,$metric);
+			$product->$metric = mysqli_result($result,$i,$metric);
 			if ($metric === 'created') {
 				$product->$metric = date("m/d/Y", strtotime($product->$metric));
 			}
@@ -56,18 +56,18 @@ function deleteProduct($id) {
 	);
 
     $query = sprintf("DELETE FROM products WHERE id = '%s'",
-        mysql_real_escape_string($id));
+        mysqli_real_escape_string($id));
 
-    if (!mysql_query($query)) {
+    if (!mysqli_query($query)) {
         $response->valid = false;
         $response->message = 'Unable to delete product';
     }
 
     // Delete relevant variations
     $query = sprintf("DELETE FROM variations WHERE productId = '%s'",
-        mysql_real_escape_string($id));
+        mysqli_real_escape_string($id));
 
-    if (!mysql_query($query)) {
+    if (!mysqli_query($query)) {
         $response->valid = false;
         $response->message = 'Unable to delete variations';
     }
@@ -91,23 +91,23 @@ function createProduct($postData) {
 
     // Create the product
     $sql = sprintf("INSERT INTO products (status,name,manufacturer,created,url,colors) value (0,'%s','%s',now(),'%s','%s')",
-    mysql_real_escape_string($name), mysql_real_escape_string($manufacturer), mysql_real_escape_string($url), mysql_real_escape_string($colors));
+    mysqli_real_escape_string($name), mysqli_real_escape_string($manufacturer), mysqli_real_escape_string($url), mysqli_real_escape_string($colors));
 
 
-    if (!mysql_query($sql)) {
+    if (!mysqli_query($sql)) {
         $response->valid = false;
         $response->message = 'Unable to create product';
         return json_encode($response);
     }
 
     // Create the variations
-    $productId = mysql_insert_id();
+    $productId = mysqli_insert_id();
     foreach($variations as $index=>$variation) {
         $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')",
-        mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg)
-        , mysql_real_escape_string($productId), mysql_real_escape_string($index));
+        mysqli_real_escape_string($variation->name), mysqli_real_escape_string($variation->svg)
+        , mysqli_real_escape_string($productId), mysqli_real_escape_string($index));
 
-        if (!mysql_query($sql)) {
+        if (!mysqli_query($sql)) {
             $response->warning = 'The product was created, but the creation of some variations may have failed.';
         }
     }
@@ -135,9 +135,9 @@ function updateProduct($postData) {
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("UPDATE products SET $metric = '%s' WHERE id = '%s'",
-			mysql_real_escape_string($val), mysql_real_escape_string($id));
+			mysqli_real_escape_string($val), mysqli_real_escape_string($id));
 
-		if (!mysql_query($query)) {
+		if (!mysqli_query($query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;
 		}
@@ -147,11 +147,11 @@ function updateProduct($postData) {
     $touchedIds = array();
     $storedIds = array();
     foreach($variations as $index=>$variation) {
-        $query = sprintf("SELECT id FROM variations WHERE productId = '%s'", mysql_real_escape_string($id));
-    	$result = mysql_query($query);
-    	$num = mysql_num_rows($result);
+        $query = sprintf("SELECT id FROM variations WHERE productId = '%s'", mysqli_real_escape_string($id));
+    	$result = mysqli_query($query);
+    	$num = mysqli_num_rows($result);
     	for ($i = 0; $i < $num; $i++) {
-            $variationId = mysql_result($result,$i,'id');
+            $variationId = mysqli_result($result,$i,'id');
     		array_push($storedIds, $variationId);
     	}
 
@@ -160,15 +160,15 @@ function updateProduct($postData) {
         if (isset($variation->id)) {
             $variationId = $variation->id;
             array_push($touchedIds, $variationId);
-            $sql = sprintf("UPDATE variations SET name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($index), mysql_real_escape_string($variationId));
+            $sql = sprintf("UPDATE variations SET name = '%s', svg = '%s', sortIndex = '%s' WHERE id = '%s'", mysqli_real_escape_string($variation->name), mysqli_real_escape_string($variation->svg), mysqli_real_escape_string($index), mysqli_real_escape_string($variationId));
 
-            if (!mysql_query($sql)) {
+            if (!mysqli_query($sql)) {
     			$response->valid = false;
     			$response->message = 'Unable to update variation ' . $variationId;
     		}
         } else {
             // Create new variation
-            $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysql_real_escape_string($variation->name), mysql_real_escape_string($variation->svg), mysql_real_escape_string($id), mysql_real_escape_string($index));
+            $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysqli_real_escape_string($variation->name), mysqli_real_escape_string($variation->svg), mysqli_real_escape_string($id), mysqli_real_escape_string($index));
         }
     }
     // Delete unmentioned variations
@@ -176,7 +176,7 @@ function updateProduct($postData) {
         if (in_array($storedId, $touchedIds)) {
             continue;
         }
-        $sql = sprintf("DELETE from variations WHERE id = '%s'", mysql_real_escape_string($storedId));
+        $sql = sprintf("DELETE from variations WHERE id = '%s'", mysqli_real_escape_string($storedId));
     }
 
 
@@ -197,20 +197,20 @@ if ($_POST) {
 	//Delete
 	if (isset($_POST['delete'])) {
 		echo deleteProduct($_POST['id']);
-    	mysql_close();
+    	mysqli_close();
         return;
 	}
 
 	//Create
 	if (isset($_POST['new'])) {
         echo createProduct($_POST);
-    	mysql_close();
+    	mysqli_close();
         return;
 	}
 
 	//Update
     echo updateProduct($_POST);
-	mysql_close();
+	mysqli_close();
     return;
 }
 

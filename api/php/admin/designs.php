@@ -19,14 +19,14 @@ if ($_GET){
 	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
 	$query = sprintf($queryString);
 
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
-	mysql_close();
+	$result = mysqli_query($query);
+	$num = mysqli_num_rows($result);
+	mysqli_close();
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$designs = (object) array();
 		foreach ($_GET['return'] as $key=>$metric){
-			$designs->$metric = mysql_result($result,$i,$metric);
+			$designs->$metric = mysqli_result($result,$i,$metric);
 			if ($metric === 'created' || $metric === 'updated') {
 				$designs->$metric = date("m/d/Y", strtotime($designs->$metric));
 			}
@@ -45,9 +45,9 @@ if ($_GET){
 	//Delete
 	if (isset($_POST['delete'])) {
 		$query = sprintf("delete from designs where id = '%s'",
-			mysql_real_escape_string($_POST['id']));
+			mysqli_real_escape_string($_POST['id']));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 
 		} else {
 			$response->valid = false;
@@ -85,9 +85,9 @@ if ($_GET){
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update designs set $metric = '%s' where id = '%s'",
-			mysql_real_escape_string($val), mysql_real_escape_string($id));
+			mysqli_real_escape_string($val), mysqli_real_escape_string($id));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;
@@ -95,9 +95,9 @@ if ($_GET){
 	}
 
 	$query = sprintf("update designs set updated = now() where id = '%s'",
-		mysql_real_escape_string($val), mysql_real_escape_string($id));
+		mysqli_real_escape_string($val), mysqli_real_escape_string($id));
 
-	if (mysql_query($query)) {
+	if (mysqli_query($query)) {
 	} else {
 		$response->valid = false;
 		$response->message = 'Unable to change updated';

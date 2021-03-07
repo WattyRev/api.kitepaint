@@ -15,14 +15,14 @@ if ($_GET){
 		$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 		$query = sprintf("SELECT * FROM login WHERE $filter $order $limit");
 
-		$result = mysql_query($query);
-		$num = mysql_num_rows($result);
-		mysql_close();
+		$result = mysqli_query($query);
+		$num = mysqli_num_rows($result);
+		mysqli_close();
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$users = (object) array();
 			foreach ($_GET['return'] as $key=>$metric){
-				$users->$metric = mysql_result($result,$i,$metric);
+				$users->$metric = mysqli_result($result,$i,$metric);
 				if ($metric === 'last_login' || $metric === 'create_time' || $metric === 'deleted_time') {
 					$users->$metric = date("m/d/Y", strtotime($users->$metric));
 				}
@@ -46,9 +46,9 @@ if (isset($_POST['id'])){
 		}
 		
 		$query = sprintf("update login set $key = '%s' where loginid = '%s'",
-			mysql_real_escape_string($value), mysql_real_escape_string($_POST['id']));
+			mysqli_real_escape_string($value), mysqli_real_escape_string($_POST['id']));
 
-		if (!mysql_query($query)) {
+		if (!mysqli_query($query)) {
 			$responsive->valid = false;
 			$response->message = 'Unable to change ' . $key;
 		}

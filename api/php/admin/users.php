@@ -17,14 +17,14 @@ if ($_GET){
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$query = sprintf("SELECT * FROM login $filter $order $limit");
 
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
-	mysql_close();
+	$result = mysqli_query($query);
+	$num = mysqli_num_rows($result);
+	mysqli_close();
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$designs = (object) array();
 		foreach ($_GET['return'] as $key=>$metric){
-			$designs->$metric = mysql_result($result,$i,$metric);
+			$designs->$metric = mysqli_result($result,$i,$metric);
 			if ($metric === 'create_time' || $metric === 'last_login' || $metric === 'deleted_time') {
 				$designs->$metric = date("m/d/Y", strtotime($designs->$metric));
 			}
@@ -42,9 +42,9 @@ if ($_GET){
 	//Delete
 	if (isset($_POST['delete'])) {
 		$query = sprintf("delete from login where loginid = '%s'", 
-			mysql_real_escape_string($_POST['loginid']));
+			mysqli_real_escape_string($_POST['loginid']));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 
 		} else {
 			$response->valid = false;
@@ -82,12 +82,12 @@ if ($_GET){
 		}
 		$code = generate_code(20);
 		$sql = sprintf("insert into login (username,password,email,actcode,create_time,last_login,activated) value ('%s','%s','%s','%s', now(), now(), 1)",
-		mysql_real_escape_string($username), mysql_real_escape_string(sha1($password . $seed))
-		, mysql_real_escape_string($email), mysql_real_escape_string($code));
+		mysqli_real_escape_string($username), mysqli_real_escape_string(sha1($password . $seed))
+		, mysqli_real_escape_string($email), mysqli_real_escape_string($code));
 		
 		
-		if (mysql_query($sql)) {
-			$id = mysql_insert_id();
+		if (mysqli_query($sql)) {
+			$id = mysqli_insert_id();
 
 			if (sendAccountInfo($username, $password, $email)) {
 				echo json_encode($response);
@@ -118,9 +118,9 @@ if ($_GET){
 		$query = sprintf("select loginid from login where loginid = '%s' limit 1",
 			$id);
 		
-		$result = mysql_query($query);
+		$result = mysqli_query($query);
 		
-		if (mysql_num_rows($result) != 1) {
+		if (mysqli_num_rows($result) != 1) {
 			$response->valid = false;
 			$response->message = 'Incorrect user or email address';
 			echo json_encode($response);
@@ -131,9 +131,9 @@ if ($_GET){
 		$newpass = generate_code(8);
 		
 		$query = sprintf("update login set password = '%s' where username = '%s'",
-		    mysql_real_escape_string(sha1($newpass.$seed)), mysql_real_escape_string($username));
+		    mysqli_real_escape_string(sha1($newpass.$seed)), mysqli_real_escape_string($username));
 		
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 		
 			if (sendLostPasswordEmail($username, $email, $newpass)) {
 				return $response;
@@ -164,9 +164,9 @@ if ($_GET){
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update login set $metric = '%s' where loginid = '%s'",
-			mysql_real_escape_string($val), mysql_real_escape_string($id));
+			mysqli_real_escape_string($val), mysqli_real_escape_string($id));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;

@@ -4,13 +4,13 @@ require_once "header.php";
 function getPublicProductIds() {
 	// Query IDs of products that are public (status=2)
 	$query = sprintf("SELECT id FROM products WHERE status = \"2\"");
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
+	$result = mysqli_query($query);
+	$num = mysqli_num_rows($result);
 
 	// Cast SQL response into an array of IDs.
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-		array_push($response, mysql_result($result,$i,"id"));
+		array_push($response, mysqli_result($result,$i,"id"));
 	}
 	return $response;
 }
@@ -18,13 +18,13 @@ function getPublicProductIds() {
 function getProductStatusesById() {
 	// Query the statuses of products and their ids
 	$query = sprintf("SELECT id, status FROM products");
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
+	$result = mysqli_query($query);
+	$num = mysqli_num_rows($result);
 
 	// Cast SQL response into a key value pair.
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-		$response[mysql_result($result,$i,"id")] = mysql_result($result,$i,"status");
+		$response[mysqli_result($result,$i,"id")] = mysqli_result($result,$i,"status");
 	}
 	return $response;
 }
@@ -68,22 +68,22 @@ if ($_GET){
 		$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 		$query = sprintf("SELECT * FROM designs WHERE $filter $productFilter $order $limit");
 
-		$result = mysql_query($query);
-		$num = mysql_num_rows($result);
-		mysql_close();
+		$result = mysqli_query($query);
+		$num = mysqli_num_rows($result);
+		mysqli_close();
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$design = (object) array();
-			$design->id = mysql_result($result,$i,"id");
-			$design->created = date("m/d/Y", strtotime(mysql_result($result,$i,"created")));
-			$design->updated = date("m/d/Y", strtotime(mysql_result($result,$i,"updated")));
-			$design->name = mysql_result($result,$i,"name");
-			$design->user = mysql_result($result,$i,"user");
-			$design->product = mysql_result($result,$i,"product");
-			$design->variations = mysql_result($result,$i,"variations");
-			$design->status = mysql_result($result,$i,"status");
-			$design->active = mysql_result($result,$i,"active");
-			$design->images = mysql_result($result,$i,"images");
+			$design->id = mysqli_result($result,$i,"id");
+			$design->created = date("m/d/Y", strtotime(mysqli_result($result,$i,"created")));
+			$design->updated = date("m/d/Y", strtotime(mysqli_result($result,$i,"updated")));
+			$design->name = mysqli_result($result,$i,"name");
+			$design->user = mysqli_result($result,$i,"user");
+			$design->product = mysqli_result($result,$i,"product");
+			$design->variations = mysqli_result($result,$i,"variations");
+			$design->status = mysqli_result($result,$i,"status");
+			$design->active = mysqli_result($result,$i,"active");
+			$design->images = mysqli_result($result,$i,"images");
 			$design->productStatus = $productStatuses[$design->product];
 			array_push($response, $design);
 		}
@@ -99,22 +99,22 @@ if ($_GET){
 		$query = sprintf("SELECT * FROM designs");
 	}
 
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
-	mysql_close();
+	$result = mysqli_query($query);
+	$num = mysqli_num_rows($result);
+	mysqli_close();
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$design = (object) array();
-		$design->id = mysql_result($result,$i,"id");
-		$design->created = date("m/d/Y", strtotime(mysql_result($result,$i,"created")));
-		$design->updated = date("m/d/Y", strtotime(mysql_result($result,$i,"updated")));
-		$design->name = mysql_result($result,$i,"name");
-		$design->user = mysql_result($result,$i,"user");
-		$design->product = mysql_result($result,$i,"product");
-		$design->variations = mysql_result($result,$i,"variations");
-		$design->status = mysql_result($result,$i,"status");
-		$design->active = mysql_result($result,$i,"active");
-		$design->images = mysql_result($result,$i,"images");
+		$design->id = mysqli_result($result,$i,"id");
+		$design->created = date("m/d/Y", strtotime(mysqli_result($result,$i,"created")));
+		$design->updated = date("m/d/Y", strtotime(mysqli_result($result,$i,"updated")));
+		$design->name = mysqli_result($result,$i,"name");
+		$design->user = mysqli_result($result,$i,"user");
+		$design->product = mysqli_result($result,$i,"product");
+		$design->variations = mysqli_result($result,$i,"variations");
+		$design->status = mysqli_result($result,$i,"status");
+		$design->active = mysqli_result($result,$i,"active");
+		$design->images = mysqli_result($result,$i,"images");
 		$design->productStatus = $productStatuses[$design->product];
 		array_push($response, $design);
 	}
@@ -133,17 +133,17 @@ if ($_GET){
 		$id = $_POST['id'];
 
 		$query = sprintf("UPDATE designs SET active = 0 WHERE id = '%s'",
-			mysql_real_escape_string($id));
+			mysqli_real_escape_string($id));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to delete design';
 		}
 		$query = sprintf("UPDATE designs SET updated = now() WHERE id = '%s'",
-		mysql_real_escape_string($id));
+		mysqli_real_escape_string($id));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 		} else {
 		}
 		echo json_encode($response);
@@ -162,12 +162,12 @@ if ($_GET){
 		$code = generate_code(20);
 
 		$sql = sprintf("INSERT INTO designs (created, updated, name, user, product, variations, status) value (now(), now(), '%s', '%s', '%s', '%s', '%s')",
-		mysql_real_escape_string($name), mysql_real_escape_string($user)
-		, mysql_real_escape_string($product), mysql_real_escape_string($variations), mysql_real_escape_string($status));
+		mysqli_real_escape_string($name), mysqli_real_escape_string($user)
+		, mysqli_real_escape_string($product), mysqli_real_escape_string($variations), mysqli_real_escape_string($status));
 
 
-		if (mysql_query($sql)) {
-			$id = mysql_insert_id();
+		if (mysqli_query($sql)) {
+			$id = mysqli_insert_id();
 
 			$response->id = $id;
 
@@ -196,9 +196,9 @@ if ($_GET){
 			$response->images = JSON_encode($images);
 
 			$query = sprintf("update designs set images = '%s' where id = '%s'",
-				mysql_real_escape_string($response->images), mysql_real_escape_string($response->id));
+				mysqli_real_escape_string($response->images), mysqli_real_escape_string($response->id));
 
-			if (mysql_query($query)) {
+			if (mysqli_query($query)) {
 			} else {
 				$response->valid = false;
 				$response->message = 'Unable to change ' . $metric;
@@ -243,18 +243,18 @@ if ($_GET){
 
 		foreach($vars as $metric => $val){
 			$query = sprintf("update designs set $metric = '%s' where id = '%s'",
-				mysql_real_escape_string($val), mysql_real_escape_string($id));
+				mysqli_real_escape_string($val), mysqli_real_escape_string($id));
 
-			if (mysql_query($query)) {
+			if (mysqli_query($query)) {
 			} else {
 				$response->valid = false;
 				$response->message = 'Unable to change ' . $metric;
 			}
 		}
 		$query = sprintf("update designs set updated = now() where id = '%s'",
-		mysql_real_escape_string($id));
+		mysqli_real_escape_string($id));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change updated';
