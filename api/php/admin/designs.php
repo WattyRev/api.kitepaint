@@ -16,12 +16,13 @@ if ($_GET){
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
 	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
+    $conn = connectToDb();
 	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
 	$query = sprintf($queryString);
 
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$designs = (object) array();
@@ -41,13 +42,14 @@ if ($_GET){
 		'valid' => true,
 		'message' => ''
 	);
+    $conn = connectToDb();
 
 	//Delete
 	if (isset($_POST['delete'])) {
 		$query = sprintf("delete from designs where id = '%s'",
-			mysqli_real_escape_string($_POST['id']));
+			mysqli_real_escape_string($conn, $_POST['id']));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 
 		} else {
 			$response->valid = false;
@@ -85,9 +87,9 @@ if ($_GET){
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update designs set $metric = '%s' where id = '%s'",
-			mysqli_real_escape_string($val), mysqli_real_escape_string($id));
+			mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;
@@ -95,9 +97,9 @@ if ($_GET){
 	}
 
 	$query = sprintf("update designs set updated = now() where id = '%s'",
-		mysqli_real_escape_string($val), mysqli_real_escape_string($id));
+		mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 
-	if (mysqli_query($query)) {
+	if (mysqli_query($conn, $query)) {
 	} else {
 		$response->valid = false;
 		$response->message = 'Unable to change updated';

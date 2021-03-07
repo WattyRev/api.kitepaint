@@ -1,10 +1,11 @@
 <?php
 require_once "header.php";
 
+$conn = connectToDb();
 function getPublicProductIds() {
 	// Query IDs of products that are public (status=2)
 	$query = sprintf("SELECT id FROM products WHERE status = \"2\"");
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
 
 	// Cast SQL response into an array of IDs.
@@ -18,7 +19,7 @@ function getPublicProductIds() {
 function getProductStatusesById() {
 	// Query the statuses of products and their ids
 	$query = sprintf("SELECT id, status FROM products");
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
 
 	// Cast SQL response into a key value pair.
@@ -68,9 +69,9 @@ if ($_GET){
 		$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 		$query = sprintf("SELECT * FROM designs WHERE $filter $productFilter $order $limit");
 
-		$result = mysqli_query($query);
+		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
-		mysqli_close();
+		mysqli_close($conn);
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$design = (object) array();
@@ -99,7 +100,7 @@ if ($_GET){
 		$query = sprintf("SELECT * FROM designs");
 	}
 
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
 	mysqli_close();
 	$response = array();
@@ -133,17 +134,17 @@ if ($_GET){
 		$id = $_POST['id'];
 
 		$query = sprintf("UPDATE designs SET active = 0 WHERE id = '%s'",
-			mysqli_real_escape_string($id));
+			mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to delete design';
 		}
 		$query = sprintf("UPDATE designs SET updated = now() WHERE id = '%s'",
-		mysqli_real_escape_string($id));
+		mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 		}
 		echo json_encode($response);
@@ -162,12 +163,12 @@ if ($_GET){
 		$code = generate_code(20);
 
 		$sql = sprintf("INSERT INTO designs (created, updated, name, user, product, variations, status) value (now(), now(), '%s', '%s', '%s', '%s', '%s')",
-		mysqli_real_escape_string($name), mysqli_real_escape_string($user)
-		, mysqli_real_escape_string($product), mysqli_real_escape_string($variations), mysqli_real_escape_string($status));
+		mysqli_real_escape_string($conn, $name), mysqli_real_escape_string($conn, $user)
+		, mysqli_real_escape_string($conn, $product), mysqli_real_escape_string($conn, $variations), mysqli_real_escape_string($conn, $status));
 
 
-		if (mysqli_query($sql)) {
-			$id = mysqli_insert_id();
+		if (mysqli_query($conn, $sql)) {
+			$id = mysqli_insert_id($conn);
 
 			$response->id = $id;
 
@@ -196,9 +197,9 @@ if ($_GET){
 			$response->images = JSON_encode($images);
 
 			$query = sprintf("update designs set images = '%s' where id = '%s'",
-				mysqli_real_escape_string($response->images), mysqli_real_escape_string($response->id));
+				mysqli_real_escape_string($conn, $response->images), mysqli_real_escape_string($conn, $response->id));
 
-			if (mysqli_query($query)) {
+			if (mysqli_query($conn, $query)) {
 			} else {
 				$response->valid = false;
 				$response->message = 'Unable to change ' . $metric;
@@ -243,18 +244,18 @@ if ($_GET){
 
 		foreach($vars as $metric => $val){
 			$query = sprintf("update designs set $metric = '%s' where id = '%s'",
-				mysqli_real_escape_string($val), mysqli_real_escape_string($id));
+				mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 
-			if (mysqli_query($query)) {
+			if (mysqli_query($conn, $query)) {
 			} else {
 				$response->valid = false;
 				$response->message = 'Unable to change ' . $metric;
 			}
 		}
 		$query = sprintf("update designs set updated = now() where id = '%s'",
-		mysqli_real_escape_string($id));
+		mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change updated';

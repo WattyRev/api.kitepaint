@@ -1,5 +1,6 @@
 <?php
-require_once "header.php"; 
+require_once "header.php";
+$conn = connectToDb();
 if ($_GET){
 	if (isset($_GET['filter'])) {
 		$filter = "";
@@ -15,9 +16,9 @@ if ($_GET){
 		$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 		$query = sprintf("SELECT * FROM login WHERE $filter $order $limit");
 
-		$result = mysqli_query($query);
+		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
-		mysqli_close();
+		mysqli_close($conn);
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$users = (object) array();
@@ -44,11 +45,11 @@ if (isset($_POST['id'])){
 		if ($key === 'id') {
 			continue;
 		}
-		
-		$query = sprintf("update login set $key = '%s' where loginid = '%s'",
-			mysqli_real_escape_string($value), mysqli_real_escape_string($_POST['id']));
 
-		if (!mysqli_query($query)) {
+		$query = sprintf("update login set $key = '%s' where loginid = '%s'",
+			mysqli_real_escape_string($conn, $value), mysqli_real_escape_string($conn, $_POST['id']));
+
+		if (!mysqli_query($conn, $query)) {
 			$responsive->valid = false;
 			$response->message = 'Unable to change ' . $key;
 		}

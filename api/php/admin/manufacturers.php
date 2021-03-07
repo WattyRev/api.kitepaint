@@ -1,11 +1,11 @@
-<?php 
-require_once "header.php"; 
+<?php
+require_once "header.php";
+$conn = connectToDb();
 if ($_GET){
 	$query = sprintf("SELECT * FROM manufacturers");
-	 
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$manufacturer = (object) array();
@@ -41,10 +41,10 @@ if ($_GET){
 
 	//Delete
 	if (isset($_POST['delete'])) {
-		$query = sprintf("delete from manufacturers where id = '%s'", 
-			mysqli_real_escape_string($_POST['id']));
+		$query = sprintf("delete from manufacturers where id = '%s'",
+			mysqli_real_escape_string($conn, $_POST['id']));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 
 		} else {
 			$response->valid = false;
@@ -58,10 +58,10 @@ if ($_GET){
 
 	//Paid
 	if (isset($_POST['paid'])) {
-		$query = sprintf("update manufacturers set last_paid = now() where id = '%s'", 
-			mysqli_real_escape_string($_POST['id']));
+		$query = sprintf("update manufacturers set last_paid = now() where id = '%s'",
+			mysqli_real_escape_string($conn, $_POST['id']));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 
 		} else {
 			$response->valid = false;
@@ -100,25 +100,25 @@ if ($_GET){
 			return;
 		}
 		$sql = sprintf("insert into manufacturers (activated,created,name,contact_name,contact_phone,contact_email,billing_name,billing_phone,billing_email,billing_address,billing_city,billing_state,billing_postal,billing_country,invoice_amount,last_paid,logo,website) value (1, now(), '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', now(), '%s', '%s')",
-		mysqli_real_escape_string($name),
-		mysqli_real_escape_string($contact_name),
-		mysqli_real_escape_string($contact_phone),
-		mysqli_real_escape_string($contact_email),
-		mysqli_real_escape_string($billing_name),
-		mysqli_real_escape_string($billing_phone),
-		mysqli_real_escape_string($billing_email),
-		mysqli_real_escape_string($billing_address),
-		mysqli_real_escape_string($billing_city),
-		mysqli_real_escape_string($billing_state),
-		mysqli_real_escape_string($billing_postal),
-		mysqli_real_escape_string($billing_country),
-		mysqli_real_escape_string($invoice_amount),
-		mysqli_real_escape_string($logo),
-		mysqli_real_escape_string($website));
-		
-		
-		if (mysqli_query($sql)) {
-			$id = mysqli_insert_id();		
+		mysqli_real_escape_string($conn, $name),
+		mysqli_real_escape_string($conn, $contact_name),
+		mysqli_real_escape_string($conn, $contact_phone),
+		mysqli_real_escape_string($conn, $contact_email),
+		mysqli_real_escape_string($conn, $billing_name),
+		mysqli_real_escape_string($conn, $billing_phone),
+		mysqli_real_escape_string($conn, $billing_email),
+		mysqli_real_escape_string($conn, $billing_address),
+		mysqli_real_escape_string($conn, $billing_city),
+		mysqli_real_escape_string($conn, $billing_state),
+		mysqli_real_escape_string($conn, $billing_postal),
+		mysqli_real_escape_string($conn, $billing_country),
+		mysqli_real_escape_string($conn, $invoice_amount),
+		mysqli_real_escape_string($conn, $logo),
+		mysqli_real_escape_string($conn, $website));
+
+
+		if (mysqli_query($conn, $sql)) {
+			$id = mysqli_insert_id($conn);
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to create manufacturer';
@@ -150,9 +150,9 @@ if ($_GET){
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update manufacturers set $metric = '%s' where id = '%s'",
-			mysqli_real_escape_string($val), mysqli_real_escape_string($id));
+			mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;

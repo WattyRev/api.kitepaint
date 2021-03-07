@@ -2,6 +2,7 @@
 
 #### Login Functions #####
 
+$conn = connectToDb();
 function checkLogin($u, $p){
 
     global $seed; // global because $seed is declared in the header.php file
@@ -30,7 +31,6 @@ function checkLogin($u, $p){
     }
 
     //Now let us look for the user in the database.
-    $conn = connectToDb();
     $query = sprintf("
         SELECT loginid
         FROM login
@@ -185,9 +185,9 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysqli_real_escape_string($username), mysqli_real_escape_string($loginid), mysqli_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
@@ -205,9 +205,9 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysqli_real_escape_string($username), mysqli_real_escape_string($loginid), mysqli_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
@@ -225,9 +225,9 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysqli_real_escape_string($username), mysqli_real_escape_string($loginid), mysqli_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
@@ -245,9 +245,9 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysqli_real_escape_string($username), mysqli_real_escape_string($loginid), mysqli_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
@@ -259,9 +259,9 @@ function updateLogin($username, $loginid, $actcode) {
     $last_name = $row['last_name'];
 
     $query = sprintf("update login set last_login = now() where loginid = '%s'",
-            mysqli_real_escape_string($loginid));
+            mysqli_real_escape_string($conn, $loginid));
 
-    if (mysqli_query($query)) {
+    if (mysqli_query($conn, $query)) {
         $_SESSION['username'] = $username;
         $_SESSION['loginid'] = $loginid;
         $_SESSION['actcode'] = $actcode;

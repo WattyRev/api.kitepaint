@@ -1,5 +1,6 @@
 <?php
 require_once "header.php";
+$conn = connectToDb();
 if ($_GET){
 
 	if (isset($_GET['filter'])) {
@@ -14,9 +15,9 @@ if ($_GET){
 		}
 		$query = sprintf("SELECT * FROM manufacturers WHERE $filter");
 
-		$result = mysqli_query($query);
+		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
-		mysqli_close();
+		mysqli_close($conn);
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$manufacturers = (object) array();
@@ -40,9 +41,9 @@ if ($_GET){
 		$query = sprintf("SELECT * FROM manufacturers");
 	}
 
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$manufacturers = (object) array();

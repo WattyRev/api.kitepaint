@@ -1,6 +1,7 @@
 <?php
 require_once "header.php";
 
+$conn = connectToDb();
 if ($_GET) {
 
 	$filter = "";
@@ -19,9 +20,9 @@ if ($_GET) {
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$query = sprintf("SELECT * FROM retailers $filter $order $limit");
 
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$designs = (object) array();
@@ -57,8 +58,8 @@ if ($_GET) {
 			WHERE
 			username = '%s' AND password = '%s'
 			AND disabled = 0 AND activated = 1
-			LIMIT 1;", mysqli_real_escape_string($username), mysqli_real_escape_string(sha1($password . $seed)));
-		$result = mysqli_query($query);
+			LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, sha1($password . $seed)));
+		$result = mysqli_query($conn, $query);
 
 		if (mysqli_num_rows($result) != 1) {
 			$response->valid = false;
@@ -94,8 +95,8 @@ if ($_GET) {
 					FROM retailers
 					WHERE
 					id = '%s'
-					LIMIT 1;", mysqli_real_escape_string($retailer['id']));
-				$result = mysqli_query($query);
+					LIMIT 1;", mysqli_real_escape_string($conn, $retailer['id']));
+				$result = mysqli_query($conn, $query);
 				$row = mysqli_fetch_array($result);
 				$retailer[$metric] = $row[$metric];
 			}
@@ -116,8 +117,8 @@ if ($_GET) {
 			SELECT email
 			FROM retailers
 			WHERE username = '%s'
-			LIMIT 1;", mysqli_real_escape_string($username));
-		$result = mysqli_fetch_array(mysqli_query($query))['email'];
+			LIMIT 1;", mysqli_real_escape_string($conn, $username));
+		$result = mysqli_fetch_array(mysqli_query($conn, $query))['email'];
 		if($result === $email) {
 			$response->valid = true;
 		} else {
@@ -132,9 +133,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET password = '%s'
 			WHERE username = '%s'",
-			mysqli_real_escape_string(sha1($password . $seed)),
-			mysqli_real_escape_string($username));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, sha1($password . $seed)),
+			mysqli_real_escape_string($conn, $username));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to reset password';
 			echo json_encode($response);
@@ -155,8 +156,8 @@ if ($_GET) {
 			SELECT username
 			FROM retailers
 			WHERE email = '%s'
-			LIMIT 1;", mysqli_real_escape_string($email));
-		$result = mysqli_fetch_array(mysqli_query($query))['username'];
+			LIMIT 1;", mysqli_real_escape_string($conn, $email));
+		$result = mysqli_fetch_array(mysqli_query($conn, $query))['username'];
 
 		if(!$result) {
 			$response->valid = false;
@@ -181,8 +182,8 @@ if ($_GET) {
 			FROM retailers
 			WHERE
 			id = '%s'
-			LIMIT 1;", mysqli_real_escape_string($id));
-		$result = mysqli_fetch_array(mysqli_query($query))['actcode'];
+			LIMIT 1;", mysqli_real_escape_string($conn, $id));
+		$result = mysqli_fetch_array(mysqli_query($conn, $query))['actcode'];
 		if($result === $actcode) {
 			$response->valid = true;
 		} else {
@@ -227,8 +228,8 @@ if ($_GET) {
 			WHERE
 			id = '%s' AND password = '%s'
 			AND disabled = 0 AND activated = 1
-			LIMIT 1;", mysqli_real_escape_string($id), mysqli_real_escape_string(sha1($old . $seed)));
-		$result = mysqli_query($query);
+			LIMIT 1;", mysqli_real_escape_string($conn, $id), mysqli_real_escape_string($conn, sha1($old . $seed)));
+		$result = mysqli_query($conn, $query);
 		if (mysqli_num_rows($result) != 1) {
 			$response->valid = false;
 			$response->message = 'Incorrect old password';
@@ -241,9 +242,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET password = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string(sha1($new . $seed)),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, sha1($new . $seed)),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change password. Try again later.';
 			echo json_encode($response);
@@ -265,9 +266,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET first_name = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($first_name),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $first_name),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change name. Try again later.';
 			echo json_encode($response);
@@ -277,9 +278,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET last_name = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($last_name),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $last_name),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change name. Try again later.';
 			echo json_encode($response);
@@ -316,8 +317,8 @@ if ($_GET) {
 			WHERE
 			id = '%s' AND password = '%s'
 			AND disabled = 0 AND activated = 1
-			LIMIT 1;", mysqli_real_escape_string($id), mysqli_real_escape_string(sha1($password . $seed)));
-		$result = mysqli_query($query);
+			LIMIT 1;", mysqli_real_escape_string($conn, $id), mysqli_real_escape_string($conn, sha1($password . $seed)));
+		$result = mysqli_query($conn, $query);
 		if (mysqli_num_rows($result) != 1) {
 			$response->valid = false;
 			$response->message = 'Incorrect password';
@@ -330,9 +331,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET email = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($email),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $email),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change email address. Try again later.';
 			echo json_encode($response);
@@ -353,9 +354,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET phone = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($phone),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $phone),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change phone number. Try again later.';
 			echo json_encode($response);
@@ -376,9 +377,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET name = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($name),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $name),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change business name. Try again later.';
 			echo json_encode($response);
@@ -400,9 +401,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET city = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($city),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $city),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change location. Try again later.';
 			echo json_encode($response);
@@ -413,9 +414,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET state = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($state),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $state),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change location. Try again later.';
 			echo json_encode($response);
@@ -436,9 +437,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET url = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($url),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $url),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change website. Try again later.';
 			echo json_encode($response);
@@ -458,9 +459,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET product_urls = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($product_urls),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $product_urls),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to change product url. Try again later.';
 			echo json_encode($response);
@@ -480,9 +481,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET product_opt_out = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($product_opt_out),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $product_opt_out),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			$response->valid = false;
 			$response->message = 'Unable to opt out. Try again later.';
 			echo json_encode($response);
@@ -527,9 +528,9 @@ if ($_GET) {
 			UPDATE retailers
 			SET image = '%s'
 			WHERE id = '%s'",
-			mysqli_real_escape_string($newfilename),
-			mysqli_real_escape_string($id));
-		if(!mysqli_query($query)) {
+			mysqli_real_escape_string($conn, $newfilename),
+			mysqli_real_escape_string($conn, $id));
+		if(!mysqli_query($conn, $query)) {
 			header("Location: ../retailers/#!/account?error=Unable_to_upload_file");
 			exit;
 		}
@@ -584,24 +585,24 @@ if ($_GET) {
 		foreach($vars as $metric => $val){
 			if ($metric === 'password') {
 				$query = sprintf("update retailers set $metric = '%s' where id = '%s'",
-					mysqli_real_escape_string(sha1($val . $seed)), mysqli_real_escape_string($id));
+					mysqli_real_escape_string($conn, sha1($val . $seed)), mysqli_real_escape_string($conn, $id));
 			} else {
 				$query = sprintf("update retailers set $metric = '%s' where id = '%s'",
-					mysqli_real_escape_string($val), mysqli_real_escape_string($id));
+					mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 			}
 
-			if (mysqli_query($query)) {
+			if (mysqli_query($conn, $query)) {
 			} else {
 				$response->valid = false;
 				$response->message = 'Unable to change ' . $metric;
 			}
 		}
 		$query = sprintf("update retailers set updated = now() where id = '%s'",
-		mysqli_real_escape_string($id));
+		mysqli_real_escape_string($conn, $id));
 		$query = sprintf("update retailers set activated = 1 where id = '%s'",
-		mysqli_real_escape_string($id));
+		mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change updated';

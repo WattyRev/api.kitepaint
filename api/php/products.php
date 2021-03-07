@@ -1,6 +1,7 @@
 <?php
 require_once "header.php";
 
+$conn = connectToDb();
 function getProducts($filter) {
     $querySegment = "";
     $count = 0;
@@ -13,7 +14,7 @@ function getProducts($filter) {
     }
     $query = sprintf("SELECT * FROM products WHERE $querySegment");
 
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
     $num = mysqli_num_rows($result);
     $response = array();
     for ($i = 0; $i < $num; $i++) {
@@ -35,7 +36,7 @@ function getProducts($filter) {
 
 function getProduct($id) {
     $query = sprintf("SELECT * FROM products WHERE id = " . $id);
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
@@ -57,7 +58,7 @@ function getProduct($id) {
 
 function getAllProducts() {
     $query = sprintf("SELECT * FROM products WHERE status in (\"1\", \"2\")");
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
@@ -79,7 +80,7 @@ function getAllProducts() {
 
 function getVariations($productId) {
     $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
-    $result = mysqli_query($query);
+    $result = mysqli_query($conn, $query);
     $num = mysqli_num_rows($result);
     $variations = array();
     for($i = 0; $i < $num; $i++) {
@@ -96,16 +97,16 @@ function getVariations($productId) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (isset($_GET['filter'])) {
         echo getProducts($_GET['filter']);
-        mysqli_close();
+        mysqli_close($conn);
         return;
 	}
 
 	if (isset($_GET['id'])) {
 		echo getProduct($_GET['id']);
-        mysqli_close();
+        mysqli_close($conn);
         return;
 	}
 	echo getAllProducts();
-    mysqli_close();
+    mysqli_close($conn);
     return;
 }

@@ -1,6 +1,7 @@
-<?php 
-require_once "header.php"; 
+<?php
+require_once "header.php";
 
+$conn = connectToDb();
 if ($_GET) {
 	$filter = "";
 	if (isset($_GET['filter'])){
@@ -18,9 +19,9 @@ if ($_GET) {
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$query = sprintf("SELECT * FROM retailers $filter $order $limit");
 
-	$result = mysqli_query($query);
+	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$designs = (object) array();
@@ -56,10 +57,10 @@ if ($_GET) {
 		$product_urls = json_encode($_POST['product_urls']);
 		$code = generate_code(20);
 		$sql = sprintf("insert into retailers (activated,name,email,url,city,state,image,product_opt_out,product_urls,actcode,created,updated) value (0,'%s','%s','%s','%s','%s','%s','%s','%s','%s',now(),now())",
-			mysqli_real_escape_string($name), mysqli_real_escape_string($email), mysqli_real_escape_string($url), mysqli_real_escape_string($city), mysqli_real_escape_string($state), mysqli_real_escape_string($image), mysqli_real_escape_string($product_opt_out), mysqli_real_escape_string($product_urls), mysqli_real_escape_string($code));
+			mysqli_real_escape_string($conn, $name), mysqli_real_escape_string($conn, $email), mysqli_real_escape_string($conn, $url), mysqli_real_escape_string($conn, $city), mysqli_real_escape_string($conn, $state), mysqli_real_escape_string($conn, $image), mysqli_real_escape_string($conn, $product_opt_out), mysqli_real_escape_string($conn, $product_urls), mysqli_real_escape_string($conn, $code));
 
-		if (mysqli_query($sql)) {
-			$id = mysqli_insert_id();
+		if (mysqli_query($conn, $sql)) {
+			$id = mysqli_insert_id($conn);
 			if (sendRetailerActivation($id, $name, $email, $code)) {
 				echo json_encode($response);
 				return;
@@ -79,10 +80,10 @@ if ($_GET) {
 
 	//Delete
 	if (isset($_POST['delete'])) {
-		$query = sprintf("delete from retailers where id = '%s'", 
-			mysqli_real_escape_string($_POST['id']));
+		$query = sprintf("delete from retailers where id = '%s'",
+			mysqli_real_escape_string($conn, $_POST['id']));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 
 		} else {
 			$response->valid = false;
@@ -111,18 +112,18 @@ if ($_GET) {
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update retailers set $metric = '%s' where id = '%s'",
-			mysqli_real_escape_string($val), mysqli_real_escape_string($id));
+			mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 
-		if (mysqli_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;
 		}
 	}
 	$query = sprintf("update retailers set updated = now() where id = '%s'",
-		mysqli_real_escape_string($id));
+		mysqli_real_escape_string($conn, $id));
 
-	if (mysqli_query($query)) {
+	if (mysqli_query($conn, $query)) {
 	} else {
 		$response->valid = false;
 		$response->message = 'Unable to change updated';
