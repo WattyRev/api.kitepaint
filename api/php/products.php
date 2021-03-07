@@ -2,6 +2,7 @@
 require_once "header.php";
 
 function getProducts($filter) {
+    $conn = connectToDb();
     $querySegment = "";
     $count = 0;
     foreach($filter as $metric => $value){
@@ -13,81 +14,84 @@ function getProducts($filter) {
     }
     $query = sprintf("SELECT * FROM products WHERE $querySegment");
 
-    $result = mysql_query($query);
-    $num = mysql_num_rows($result);
+    $result = mysqli_query($conn, $query);
+    $num = mysqli_num_rows($result);
     $response = array();
     for ($i = 0; $i < $num; $i++) {
-        $id = mysql_result($result,$i,"id");
+        $id = mysqli_result($result,$i,"id");
         $product = (object) array();
         $product->id = $id;
-        $product->name = mysql_result($result,$i,"name");
-        $product->manufacturer = mysql_result($result,$i,"manufacturer");
-        $product->url = mysql_result($result,$i,"url");
-        $product->colors = mysql_result($result,$i,"colors");
+        $product->name = mysqli_result($result,$i,"name");
+        $product->manufacturer = mysqli_result($result,$i,"manufacturer");
+        $product->url = mysqli_result($result,$i,"url");
+        $product->colors = mysqli_result($result,$i,"colors");
         $product->variations = getVariations($id);
-        $product->notes = mysql_result($result,$i,"notes");
-        $product->status = mysql_result($result,$i,"status");
-        $product->embed = mysql_result($result,$i,"embed");
+        $product->notes = mysqli_result($result,$i,"notes");
+        $product->status = mysqli_result($result,$i,"status");
+        $product->embed = mysqli_result($result,$i,"embed");
         array_push($response, $product);
     }
     return JSON_encode($response);
 }
 
 function getProduct($id) {
+    $conn = connectToDb();
     $query = sprintf("SELECT * FROM products WHERE id = " . $id);
-    $result = mysql_query($query);
-	$num = mysql_num_rows($result);
+    $result = mysqli_query($conn, $query);
+	$num = mysqli_num_rows($result);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-        $id = mysql_result($result,$i,"id");
+        $id = mysqli_result($result,$i,"id");
 		$product = (object) array();
 		$product->id = $id;
-		$product->name = mysql_result($result,$i,"name");
-		$product->manufacturer = mysql_result($result,$i,"manufacturer");
-		$product->url = mysql_result($result,$i,"url");
-		$product->colors = mysql_result($result,$i,"colors");
+		$product->name = mysqli_result($result,$i,"name");
+		$product->manufacturer = mysqli_result($result,$i,"manufacturer");
+		$product->url = mysqli_result($result,$i,"url");
+		$product->colors = mysqli_result($result,$i,"colors");
 		$product->variations = getVariations($id);
-		$product->notes = mysql_result($result,$i,"notes");
-		$product->status = mysql_result($result,$i,"status");
-		$product->embed = mysql_result($result,$i,"embed");
+		$product->notes = mysqli_result($result,$i,"notes");
+		$product->status = mysqli_result($result,$i,"status");
+		$product->embed = mysqli_result($result,$i,"embed");
 		array_push($response, $product);
 	}
 	return json_encode($response);
 }
 
 function getAllProducts() {
+    $conn = connectToDb();
     $query = sprintf("SELECT * FROM products WHERE status in (\"1\", \"2\")");
-    $result = mysql_query($query);
-	$num = mysql_num_rows($result);
+    $result = mysqli_query($conn, $query);
+	$num = mysqli_num_rows($result);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
-        $id = mysql_result($result,$i,"id");
+        $id = mysqli_result($result,$i,"id");
 		$product = (object) array();
 		$product->id = $id;
-		$product->name = mysql_result($result,$i,"name");
-		$product->manufacturer = mysql_result($result,$i,"manufacturer");
-		$product->url = mysql_result($result,$i,"url");
-		$product->colors = mysql_result($result,$i,"colors");
+		$product->name = mysqli_result($result,$i,"name");
+		$product->manufacturer = mysqli_result($result,$i,"manufacturer");
+		$product->url = mysqli_result($result,$i,"url");
+		$product->colors = mysqli_result($result,$i,"colors");
 		$product->variations = getVariations($id);
-		$product->notes = mysql_result($result,$i,"notes");
-		$product->status = mysql_result($result,$i,"status");
-		$product->embed = mysql_result($result,$i,"embed");
+		$product->notes = mysqli_result($result,$i,"notes");
+		$product->status = mysqli_result($result,$i,"status");
+		$product->embed = mysqli_result($result,$i,"embed");
 		array_push($response, $product);
 	}
 	return json_encode($response);
 }
 
 function getVariations($productId) {
+    $conn = connectToDb();
     $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
-    $result = mysql_query($query);
-    $num = mysql_num_rows($result);
+    $result = mysqli_query($conn, $query);
+    $num = mysqli_num_rows($result);
     $variations = array();
     for($i = 0; $i < $num; $i++) {
         $variation = (object) array();
-        $variation->id = mysql_result($result,$i,'id');
-        $variation->name = mysql_result($result,$i,'name');
-        $variation->svg = mysql_result($result,$i,'svg');
-        $variation->sortIndex = intval(mysql_result($result,$i,'sortIndex'));
+        $variation->id = mysqli_result($result,$i,'id');
+        $variation->name = mysqli_result($result,$i,'name');
+        $variation->svg = mysqli_result($result,$i,'svg');
+        $variation->sortIndex = intval(mysqli_result($result,$i,'sortIndex'));
         array_push($variations, $variation);
     }
     return $variations;
@@ -96,16 +100,16 @@ function getVariations($productId) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (isset($_GET['filter'])) {
         echo getProducts($_GET['filter']);
-        mysql_close();
+        mysqli_close($conn);
         return;
 	}
 
 	if (isset($_GET['id'])) {
 		echo getProduct($_GET['id']);
-        mysql_close();
+        mysqli_close($conn);
         return;
 	}
 	echo getAllProducts();
-    mysql_close();
+    mysqli_close($conn);
     return;
 }

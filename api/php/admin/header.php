@@ -63,15 +63,16 @@ if (!isset($_SERVER['PHP_AUTH_USER']) && !isset($_SESSION['authGranted'])) {
 if (!isset($_SESSION['authGranted'])) {
     $u = $_SERVER['PHP_AUTH_USER'];
     $p = $_SERVER['PHP_AUTH_PW'];
+    $conn = connectToDb();
     $query = sprintf("
     	SELECT admin
     	FROM login
     	WHERE
     	username = '%s' AND password = '%s'
     	AND disabled = 0 AND activated = 1
-    	LIMIT 1;", mysql_real_escape_string($u), mysql_real_escape_string(sha1($p . $seed)));
-    $result = mysql_query($query);
-    $result = mysql_fetch_array($result);
+    	LIMIT 1;", mysqli_real_escape_string($conn, $u), mysqli_real_escape_string($conn, sha1($p . $seed)));
+    $result = mysqli_query($conn, $query);
+    $result = mysqli_fetch_array($result);
     if ($result['admin'] !== '1') {
         header('WWW-Authenticate: Basic realm="My Realm"');
         header('HTTP/1.0 401 Unauthorized');

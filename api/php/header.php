@@ -1,7 +1,6 @@
 <?php
 //error_reporting(0); // we don't want to see errors on screen
-error_reporting(1);
-ini_set('display_errors', 'on');
+error_reporting(E_ALL);
 // Start a session
 session_start();
 require_once ('db_connect.inc.php'); // include the database connection

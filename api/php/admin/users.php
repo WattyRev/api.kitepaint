@@ -1,5 +1,6 @@
-<?php 
-require_once "header.php"; 
+<?php
+require_once "header.php";
+$conn = connectToDb();
 if ($_GET){
 	$filter = "";
 	if (isset($_GET['filter'])){
@@ -17,14 +18,14 @@ if ($_GET){
 	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
 	$query = sprintf("SELECT * FROM login $filter $order $limit");
 
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
-	mysql_close();
+	$result = mysqli_query($conn, $query);
+	$num = mysqli_num_rows($result);
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$designs = (object) array();
 		foreach ($_GET['return'] as $key=>$metric){
-			$designs->$metric = mysql_result($result,$i,$metric);
+			$designs->$metric = mysqli_result($result,$i,$metric);
 			if ($metric === 'create_time' || $metric === 'last_login' || $metric === 'deleted_time') {
 				$designs->$metric = date("m/d/Y", strtotime($designs->$metric));
 			}
@@ -41,10 +42,10 @@ if ($_GET){
 
 	//Delete
 	if (isset($_POST['delete'])) {
-		$query = sprintf("delete from login where loginid = '%s'", 
-			mysql_real_escape_string($_POST['loginid']));
+		$query = sprintf("delete from login where loginid = '%s'",
+			mysqli_real_escape_string($conn, $_POST['loginid']));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($conn, $query)) {
 
 		} else {
 			$response->valid = false;
@@ -82,12 +83,12 @@ if ($_GET){
 		}
 		$code = generate_code(20);
 		$sql = sprintf("insert into login (username,password,email,actcode,create_time,last_login,activated) value ('%s','%s','%s','%s', now(), now(), 1)",
-		mysql_real_escape_string($username), mysql_real_escape_string(sha1($password . $seed))
-		, mysql_real_escape_string($email), mysql_real_escape_string($code));
+		mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, sha1($password . $seed))
+		, mysqli_real_escape_string($conn, $email), mysqli_real_escape_string($conn, $code));
 		
-		
-		if (mysql_query($sql)) {
-			$id = mysql_insert_id();
+
+		if (mysqli_query($conn, $sql)) {
+			$id = mysqli_insert_id($conn);
 
 			if (sendAccountInfo($username, $password, $email)) {
 				echo json_encode($response);
@@ -98,7 +99,7 @@ if ($_GET){
 				echo json_encode($response);
 				return;
 			}
-		
+
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to register';
@@ -110,31 +111,31 @@ if ($_GET){
 	//Reset Password
 	if (isset($_POST['reset'])) {
 		global $seed;
-		
+
 		$id = $_POST['loginid'];
 		$username = $_POST['username'];
 		$email = $_POST['email'];
 
 		$query = sprintf("select loginid from login where loginid = '%s' limit 1",
 			$id);
-		
-		$result = mysql_query($query);
-		
-		if (mysql_num_rows($result) != 1) {
+
+		$result = mysqli_query($conn, $query);
+
+		if (mysqli_num_rows($result) != 1) {
 			$response->valid = false;
 			$response->message = 'Incorrect user or email address';
 			echo json_encode($response);
 			return;
 		}
-		
-		
+
+
 		$newpass = generate_code(8);
-		
+
 		$query = sprintf("update login set password = '%s' where username = '%s'",
-		    mysql_real_escape_string(sha1($newpass.$seed)), mysql_real_escape_string($username));
-		
-		if (mysql_query($query)) {
-		
+		    mysqli_real_escape_string($conn, sha1($newpass.$seed)), mysqli_real_escape_string($conn, $username));
+
+		if (mysqli_query($conn, $query)) {
+
 			if (sendLostPasswordEmail($username, $email, $newpass)) {
 				return $response;
 			} else {
@@ -143,13 +144,13 @@ if ($_GET){
 				echo json_encode($response);
 				return;
 			}
-		
+
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to reset password';
 			echo json_encode($response);
 			return;
-		} 
+		}
 		echo json_encode($response);
 		return;
 	}
@@ -164,9 +165,9 @@ if ($_GET){
 
 	foreach($vars as $metric => $val){
 		$query = sprintf("update login set $metric = '%s' where loginid = '%s'",
-			mysql_real_escape_string($val), mysql_real_escape_string($id));
+			mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
 
-		if (mysql_query($query)) {
+		if (mysqli_query($conn, $query)) {
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;

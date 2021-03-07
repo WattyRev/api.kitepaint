@@ -2,6 +2,7 @@
 
 ##### User Functions #####
 function changeEmail($loginid, $email){
+    $conn = connectToDb();
     global $seed;
     $response = (object) array();
     $response->valid = true;
@@ -21,9 +22,9 @@ function changeEmail($loginid, $email){
 
     // now we update the email in the database
     $query = sprintf("update login set email = '%s' where loginid = '%s'",
-        mysql_real_escape_string($email), mysql_real_escape_string($loginid));
+        mysqli_real_escape_string($conn, $email), mysqli_real_escape_string($conn, $loginid));
 
-    if (mysql_query($query)) {
+    if (mysqli_query($conn, $query)) {
         return $response;
     } else {
         $response->valid = false;
@@ -33,6 +34,7 @@ function changeEmail($loginid, $email){
 }
 
 function changePassword($username, $currentpassword, $newpassword, $newpassword2){
+    $conn = connectToDb();
     global $seed;
     $response = (object) array();
     $response->valid = true;
@@ -63,10 +65,10 @@ function changePassword($username, $currentpassword, $newpassword, $newpassword2
 
     // we get the current password from the database
     $query = sprintf("SELECT password FROM login WHERE username = '%s' LIMIT 1",
-        mysql_real_escape_string($username));
+        mysqli_real_escape_string($conn, $username));
 
-    $result = mysql_query($query);
-    $row= mysql_fetch_row($result);
+    $result = mysqli_query($conn, $query);
+    $row= mysqli_fetch_row($result);
 
     // compare it with the password the user entered, if they don't match, we return false, he needs to enter the correct password.
     if ($row[0] != sha1($currentpassword.$seed)){
@@ -77,9 +79,9 @@ function changePassword($username, $currentpassword, $newpassword, $newpassword2
 
     // now we update the password in the database
     $query = sprintf("update login set password = '%s' where username = '%s'",
-        mysql_real_escape_string(sha1($newpassword.$seed)), mysql_real_escape_string($username));
+        mysqli_real_escape_string($conn, sha1($newpassword.$seed)), mysqli_real_escape_string($conn, $username));
 
-    if (mysql_query($query)) {
+    if (mysqli_query($conn, $query)) {
         return $response;
     } else {
         $response->valid = false;
@@ -89,6 +91,7 @@ function changePassword($username, $currentpassword, $newpassword, $newpassword2
 }
 
 function delete_account($loginid, $password){
+    $conn = connectToDb();
     global $seed;
     $response = (object) array();
     $response->valid = true;
@@ -102,10 +105,10 @@ function delete_account($loginid, $password){
 
     // we get the current password from the database
     $query = sprintf("SELECT password FROM login WHERE loginid = '%s' LIMIT 1",
-        mysql_real_escape_string($loginid));
+        mysqli_real_escape_string($conn, $loginid));
 
-    $result = mysql_query($query);
-    $row= mysql_fetch_row($result);
+    $result = mysqli_query($conn, $query);
+    $row= mysqli_fetch_row($result);
 
     // compare it with the password the user entered, if they don't match, we return false, he needs to enter the correct password.
     if ($row[0] != sha1($password.$seed)){
@@ -116,9 +119,9 @@ function delete_account($loginid, $password){
 
     // now we update 'deleted' in the database
     $query = sprintf("update login set deleted = 1 where loginid = '%s'",
-        mysql_real_escape_string(mysql_real_escape_string($loginid)));
+        mysqli_real_escape_string($conn, mysqli_real_escape_string($conn, $loginid)));
 
-    if (mysql_query($query)) {
+    if (mysqli_query($conn, $query)) {
     } else {
         $response->valid = false;
         $response->message = 'Unable to delete account';
@@ -127,24 +130,24 @@ function delete_account($loginid, $password){
 
     // now we update 'deleted time' in the database
     $query = sprintf("update login set deleted_time = now() where loginid = '%s'",
-        mysql_real_escape_string(mysql_real_escape_string($loginid)));
+        mysqli_real_escape_string($conn, mysqli_real_escape_string($conn, $loginid)));
 
-    if (mysql_query($query)) {
+    if (mysqli_query($conn, $query)) {
         return $response;
     }
 }
 
 function user_exists($username) {
+    $conn = connectToDb();
     if (!valid_username($username)) {
         return false;
     }
-
+    $escapedUsername = mysqli_real_escape_string($conn, $username);
     $query = sprintf("SELECT loginid FROM login WHERE username = '%s' LIMIT 1",
-        mysql_real_escape_string($username));
+        $escapedUsername);
+    $result = mysqli_query($conn, $query);
 
-    $result = mysql_query($query);
-
-    if (mysql_num_rows($result) > 0) {
+    if (mysqli_num_rows($result) > 0) {
         return true;
     } else {
         return false;
@@ -154,16 +157,17 @@ function user_exists($username) {
 }
 
 function user_email_exists($email) {
+    $conn = connectToDb();
   if (!valid_email($email)) {
       return false;
   }
 
   $query = sprintf("SELECT loginid FROM login WHERE email = '%s' LIMIT 1",
-      mysql_real_escape_string($email));
+      mysqli_real_escape_string($conn, $email));
 
-  $result = mysql_query($query);
+  $result = mysqli_query($conn, $query);
 
-  if (mysql_num_rows($result) > 0) {
+  if (mysqli_num_rows($result) > 0) {
       return true;
   } else {
       return false;
@@ -175,13 +179,14 @@ function retailer_exists($username) {
     if (!valid_username($username)) {
         return false;
     }
+    $conn = connectToDb();
 
     $query = sprintf("SELECT id FROM retailers WHERE username = '%s' LIMIT 1",
-        mysql_real_escape_string($username));
+        mysqli_real_escape_string($conn, $username));
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) > 0) {
+    if (mysqli_num_rows($result) > 0) {
         return true;
     } else {
         return false;
@@ -192,18 +197,19 @@ function retailer_exists($username) {
 
 
 function activateUser($uid, $actcode) {
+    $conn = connectToDb();
 
     $query = sprintf("select activated from login where loginid = '%s' and actcode = '%s' and activated = 0  limit 1",
-        mysql_real_escape_string($uid), mysql_real_escape_string($actcode));
+        mysqli_real_escape_string($conn, $uid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) == 1) {
+    if (mysqli_num_rows($result) == 1) {
 
         $sql = sprintf("update login set activated = '1'  where loginid = '%s' and actcode = '%s'",
-            mysql_real_escape_string($uid), mysql_real_escape_string($actcode));
+            mysqli_real_escape_string($conn, $uid), mysqli_real_escape_string($conn, $actcode));
 
-        if (mysql_query($sql)) {
+        if (mysqli_query($conn, $sql)) {
             return true;
         } else {
             return false;
@@ -247,16 +253,17 @@ function registerNewUser($username, $password, $password2, $email) {
         $response->message = $username . ' has already been taken';
         return $response;
     }
+    $conn = connectToDb();
 
 
     $code = generate_code(20);
     $sql = sprintf("insert into login (username,password,email,actcode,create_time,last_login) value ('%s','%s','%s','%s', now(), now())",
-        mysql_real_escape_string($username), mysql_real_escape_string(sha1($password . $seed))
-        , mysql_real_escape_string($email), mysql_real_escape_string($code));
+        mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, sha1($password . $seed))
+        , mysqli_real_escape_string($conn, $email), mysqli_real_escape_string($conn, $code));
 
 
-    if (mysql_query($sql)) {
-        $id = mysql_insert_id();
+    if (mysqli_query($conn, $sql)) {
+        $id = mysqli_insert_id($conn);
 
         if (sendActivationEmail($username, $password, $id, $email, $code)) {
             return $response;
@@ -297,13 +304,14 @@ function lostPassword($username, $email) {
         $response->message = 'No account exists for ' . $email;
         return $response;
     }
+    $conn = connectToDb();
 
     $query = sprintf("select loginid from login where username = '%s' and email = '%s' limit 1",
         $username, $email);
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) != 1) {
+    if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
         $response->message = 'Incorrect user or email address';
         return $response;
@@ -313,9 +321,9 @@ function lostPassword($username, $email) {
     $newpass = generate_code(8);
 
     $query = sprintf("update login set password = '%s' where username = '%s'",
-        mysql_real_escape_string(sha1($newpass.$seed)), mysql_real_escape_string($username));
+        mysqli_real_escape_string($conn, sha1($newpass.$seed)), mysqli_real_escape_string($conn, $username));
 
-    if (mysql_query($query)) {
+    if (mysqli_query($conn, $query)) {
 
         if (sendLostPasswordEmail($username, $email, $newpass)) {
             return $response;

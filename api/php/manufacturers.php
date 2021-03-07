@@ -1,5 +1,6 @@
 <?php
 require_once "header.php";
+$conn = connectToDb();
 if ($_GET){
 
 	if (isset($_GET['filter'])) {
@@ -14,14 +15,14 @@ if ($_GET){
 		}
 		$query = sprintf("SELECT * FROM manufacturers WHERE $filter");
 
-		$result = mysql_query($query);
-		$num = mysql_num_rows($result);
-		mysql_close();
+		$result = mysqli_query($conn, $query);
+		$num = mysqli_num_rows($result);
+		mysqli_close($conn);
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$manufacturers = (object) array();
 			foreach ($_GET['return'] as $key=>$metric){
-				$manufacturers->$metric = mysql_result($result,$i,$metric);
+				$manufacturers->$metric = mysqli_result($result,$i,$metric);
 				if ($metric === 'created') {
 					$manufacturers->$metric = date("m/d/Y", strtotime($manufacturers->$metric));
 				}
@@ -40,16 +41,16 @@ if ($_GET){
 		$query = sprintf("SELECT * FROM manufacturers");
 	}
 
-	$result = mysql_query($query);
-	$num = mysql_num_rows($result);
-	mysql_close();
+	$result = mysqli_query($conn, $query);
+	$num = mysqli_num_rows($result);
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$manufacturers = (object) array();
-		$manufacturers->id = mysql_result($result,$i,"id");
-		$manufacturers->name = mysql_result($result,$i,"name");
-		$manufacturers->logo = mysql_result($result,$i,"logo");
-		$manufacturers->website = mysql_result($result,$i,"website");
+		$manufacturers->id = mysqli_result($result,$i,"id");
+		$manufacturers->name = mysqli_result($result,$i,"name");
+		$manufacturers->logo = mysqli_result($result,$i,"logo");
+		$manufacturers->website = mysqli_result($result,$i,"website");
 		array_push($response, $manufacturers);
 	}
 	echo json_encode($response);

@@ -1,22 +1,34 @@
 <?php
- 
-#### Login Functions #####
- 
-function checkLogin($u, $p){
 
+#### Login Functions #####
+
+function checkLogin($u, $p){
+    $conn = connectToDb();
     global $seed; // global because $seed is declared in the header.php file
 
 
     $response = (object) array();
     $response->valid = true;
- 
-    if (!valid_username($u) || !valid_password($p) || !user_exists($u))
+
+    if (!valid_username($u))
     {
         $response->valid = false;
-        $response->message = 'Invalid username or password';
+        $response->message = 'Invalid username.';
         return $response;
     }
- 
+    if (!valid_password($p))
+    {
+        $response->valid = false;
+        $response->message = 'Invalid password.';
+        return $response;
+    }
+    if (!user_exists($u))
+    {
+        $response->valid = false;
+        $response->message = 'User could not be found.';
+        return $response;
+    }
+
     //Now let us look for the user in the database.
     $query = sprintf("
         SELECT loginid
@@ -24,16 +36,19 @@ function checkLogin($u, $p){
         WHERE
         username = '%s' AND password = '%s'
         AND disabled = 0 AND activated = 1
-        LIMIT 1;", mysql_real_escape_string($u), mysql_real_escape_string(sha1($p . $seed)));
-    $result = mysql_query($query);
+        LIMIT 1;", mysqli_real_escape_string($conn, $u), mysqli_real_escape_string($conn, sha1($p . $seed)));
+    $result = mysqli_query($conn, $query);
     // If the database returns a 0 as result we know the login information is incorrect.
     // If the database returns a 1 as result we know  the login was correct and we proceed.
     // If the database returns a result > 1 there are multple users
     // with the same username and password, so the login will fail.
-    if (mysql_num_rows($result) != 1)
-    {
+    if (mysqli_num_rows($result) == 0) {
         $response->valid = false;
-        $response->message = 'Invalid username or password';
+        $response->message = 'An account could not be found.';
+        return $response;
+    } elseif (mysqli_num_rows($result) != 1) {
+        $response->valid = false;
+        $response->message = 'Multiple accounts were found, so you could not be logged in, please contact us to resolve the issue.';
         return $response;
     } else {
 
@@ -44,20 +59,20 @@ function checkLogin($u, $p){
             WHERE
             username = '%s' AND password = '%s'
             AND disabled = 0 AND activated = 1
-            LIMIT 1;", mysql_real_escape_string($u), mysql_real_escape_string(sha1($p . $seed)));
-        $deleted_result = mysql_query($query);
-        $deleted_row = mysql_fetch_array($deleted_result);
+            LIMIT 1;", mysqli_real_escape_string($conn, $u), mysqli_real_escape_string($conn, sha1($p . $seed)));
+        $deleted_result = mysqli_query($conn, $query);
+        $deleted_row = mysqli_fetch_array($deleted_result);
         $deleted = $deleted_row['deleted'];
 
         if ($deleted === "1") {
             $response->valid = false;
-            $response->message = 'Invalid username or password';
+            $response->message = 'This account has been deleted';
             return $response;
         }
 
         // Login was successfull
-        $row = mysql_fetch_array($result);
-        
+        $row = mysqli_fetch_array($result);
+
         $loginid = $row['loginid'];
 
         $query = sprintf("
@@ -65,10 +80,10 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysql_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysql_query($query);
-        $row = mysql_fetch_array($result);
+        $result = mysqli_query($conn, $query);
+        $row = mysqli_fetch_array($result);
 
         $actcode = $row['actcode'];
 
@@ -77,22 +92,22 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysql_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysql_query($query);
-        $row = mysql_fetch_array($result);
+        $result = mysqli_query($conn, $query);
+        $row = mysqli_fetch_array($result);
 
         $email = $row['email'];
-        
+
         $query = sprintf("
             SELECT favorites
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysql_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysql_query($query);
-        $row = mysql_fetch_array($result);
+        $result = mysqli_query($conn, $query);
+        $row = mysqli_fetch_array($result);
 
         $favorites = $row['favorites'];
 
@@ -101,10 +116,10 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysql_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysql_query($query);
-        $row = mysql_fetch_array($result);
+        $result = mysqli_query($conn, $query);
+        $row = mysqli_fetch_array($result);
 
         $first_name = $row['first_name'];
 
@@ -113,18 +128,18 @@ function checkLogin($u, $p){
             FROM login
             WHERE
             loginid = '%s'
-            LIMIT 1;", mysql_real_escape_string($loginid));
+            LIMIT 1;", mysqli_real_escape_string($conn, $loginid));
 
-        $result = mysql_query($query);
-        $row = mysql_fetch_array($result);
+        $result = mysqli_query($conn, $query);
+        $row = mysqli_fetch_array($result);
 
         $last_name = $row['last_name'];
 
         //update last login time
         $query = sprintf("update login set last_login = now() where loginid = '%s'",
-            mysql_real_escape_string($loginid));
-     
-        if (mysql_query($query)) {
+            mysqli_real_escape_string($conn, $loginid));
+
+        if (mysqli_query($conn, $query)) {
         } else {
             $response->valid = false;
             $response->message = 'Unable to log in';
@@ -151,6 +166,7 @@ function checkLogin($u, $p){
 }
 
 function updateLogin($username, $loginid, $actcode) {
+    $conn = connectToDb();
     $response = (object) array();
     $response->valid = true;
 
@@ -169,17 +185,17 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysql_real_escape_string($username), mysql_real_escape_string($loginid), mysql_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) != 1) {
+    if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
         $response->message = 'Invalid credentials';
         return $response;
     }
 
-    $row = mysql_fetch_array($result);
+    $row = mysqli_fetch_array($result);
     $email = $row['email'];
 
     //get favorites
@@ -189,17 +205,17 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysql_real_escape_string($username), mysql_real_escape_string($loginid), mysql_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) != 1) {
+    if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
         $response->message = 'Invalid credentials';
         return $response;
     }
 
-    $row = mysql_fetch_array($result);
+    $row = mysqli_fetch_array($result);
     $favorites = $row['favorites'];
 
     //first_name
@@ -209,17 +225,17 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysql_real_escape_string($username), mysql_real_escape_string($loginid), mysql_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) != 1) {
+    if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
         $response->message = 'Invalid credentials';
         return $response;
     }
 
-    $row = mysql_fetch_array($result);
+    $row = mysqli_fetch_array($result);
     $first_name = $row['first_name'];
 
     //last_name
@@ -229,23 +245,23 @@ function updateLogin($username, $loginid, $actcode) {
         WHERE
         username = '%s' AND loginid = '%s'
         AND actcode = '%s'
-        LIMIT 1;", mysql_real_escape_string($username), mysql_real_escape_string($loginid), mysql_real_escape_string($actcode));
+        LIMIT 1;", mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $loginid), mysqli_real_escape_string($conn, $actcode));
 
-    $result = mysql_query($query);
+    $result = mysqli_query($conn, $query);
 
-    if (mysql_num_rows($result) != 1) {
+    if (mysqli_num_rows($result) != 1) {
         $response->valid = false;
         $response->message = 'Invalid credentials';
         return $response;
     }
 
-    $row = mysql_fetch_array($result);
+    $row = mysqli_fetch_array($result);
     $last_name = $row['last_name'];
 
     $query = sprintf("update login set last_login = now() where loginid = '%s'",
-            mysql_real_escape_string($loginid));
-     
-    if (mysql_query($query)) {
+            mysqli_real_escape_string($conn, $loginid));
+
+    if (mysqli_query($conn, $query)) {
         $_SESSION['username'] = $username;
         $_SESSION['loginid'] = $loginid;
         $_SESSION['actcode'] = $actcode;
@@ -260,5 +276,5 @@ function updateLogin($username, $loginid, $actcode) {
         return $response;
     }
 }
- 
+
 ?>
