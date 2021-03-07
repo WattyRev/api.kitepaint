@@ -139,8 +139,12 @@ function user_exists($username) {
         return false;
     }
 
+    $escapedUsername = mysqli_real_escape_string($conn, $username);
+
+    var_dump($escapedUsername);
+
     $query = sprintf("SELECT loginid FROM login WHERE username = '%s' LIMIT 1",
-        mysqli_real_escape_string($conn, $username));
+        $escapedUsername);
 
     var_dump($query);
 
