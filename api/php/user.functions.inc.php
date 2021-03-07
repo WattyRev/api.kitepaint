@@ -152,6 +152,7 @@ function user_exists($username) {
     $result = mysqli_query($conn, $query);
 
     var_dump($result);
+    var_dump(mysqli_num_rows($result));
 
     if (mysqli_num_rows($result) > 0) {
         return true;
