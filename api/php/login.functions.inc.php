@@ -10,10 +10,22 @@ function checkLogin($u, $p){
     $response = (object) array();
     $response->valid = true;
 
-    if (!valid_username($u) || !valid_password($p) || !user_exists($u))
+    if (!valid_username($u))
     {
         $response->valid = false;
-        $response->message = 'Invalid username or password.';
+        $response->message = 'Invalid username.';
+        return $response;
+    }
+    if (!valid_password($p))
+    {
+        $response->valid = false;
+        $response->message = 'Invalid password.';
+        return $response;
+    }
+    if (!user_exists($u))
+    {
+        $response->valid = false;
+        $response->message = 'User could not be found.';
         return $response;
     }
 
