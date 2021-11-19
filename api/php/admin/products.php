@@ -1,7 +1,8 @@
 <?php
 require_once "header.php";
-$conn = connectToDb();
+
 function getProducts($filter, $return) {
+    $conn = connectToDb();
     $query = "";
 	if(isset($filter)){
 		$query .= "WHERE";
@@ -46,10 +47,12 @@ function getProducts($filter, $return) {
 		}
 		array_push($response, $product);
 	}
+    mysqli_close($conn);
 	return JSON_encode($response);
 }
 
 function deleteProduct($id) {
+    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -72,10 +75,12 @@ function deleteProduct($id) {
         $response->message = 'Unable to delete variations';
     }
 
+    mysqli_close($conn);
     return json_encode($response);
 }
 
 function createProduct($postData) {
+    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -112,11 +117,13 @@ function createProduct($postData) {
         }
     }
 
+    mysqli_close($conn);
     // Return success
     return json_encode($response);
 }
 
 function updateProduct($postData) {
+    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -179,14 +186,13 @@ function updateProduct($postData) {
         $sql = sprintf("DELETE from variations WHERE id = '%s'", mysqli_real_escape_string($conn, $storedId));
     }
 
-
+    mysqli_close($conn);
 	return json_encode($response);
 }
 
 if ($_GET){
     $filter = isset($_GET['filter']) ? $_GET['filter'] : null;
     echo getProducts($filter, $_GET['return']);
-	mysqli_close($conn);
     return;
 }
 if ($_POST) {
@@ -198,22 +204,18 @@ if ($_POST) {
 	//Delete
 	if (isset($_POST['delete'])) {
 		echo deleteProduct($_POST['id']);
-    	mysqli_close($conn);
         return;
 	}
 
 	//Create
 	if (isset($_POST['new'])) {
         echo createProduct($_POST);
-    	mysqli_close($conn);
         return;
 	}
 
 	//Update
     echo updateProduct($_POST);
-	mysqli_close($conn);
     return;
 }
 
-mysqli_close($conn);
 echo 'No GET or POST variables';
