@@ -153,16 +153,14 @@ function updateProduct($postData) {
     // Update variations
     $touchedIds = array();
     $storedIds = array();
+    $query = sprintf("SELECT id FROM variations WHERE productId = '%s'", mysqli_real_escape_string($conn, $id));
+    $result = mysqli_query($conn, $query);
+    $num = mysqli_num_rows($result);
+    for ($i = 0; $i < $num; $i++) {
+        $variationId = mysqli_result($result,$i,'id');
+        array_push($storedIds, $variationId);
+    }
     foreach($variations as $index=>$variation) {
-        $query = sprintf("SELECT id FROM variations WHERE productId = '%s'", mysqli_real_escape_string($conn, $id));
-    	$result = mysqli_query($conn, $query);
-    	$num = mysqli_num_rows($result);
-    	for ($i = 0; $i < $num; $i++) {
-            $variationId = mysqli_result($result,$i,'id');
-    		array_push($storedIds, $variationId);
-    	}
-
-
         // Update existing variation
         if (isset($variation->id)) {
             $variationId = $variation->id;
@@ -174,6 +172,7 @@ function updateProduct($postData) {
     			$response->message = 'Unable to update variation ' . $variationId;
     		}
         } else {
+            $resoonse->message = 'Creating a new variation';
             // Create new variation
             $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysqli_real_escape_string($conn, $variation->name), mysqli_real_escape_string($conn, $variation->svg), mysqli_real_escape_string($conn, $id), mysqli_real_escape_string($conn, $index));
         }
