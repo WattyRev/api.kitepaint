@@ -47,6 +47,7 @@ function getProducts($filter, $return) {
 		}
 		array_push($response, $product);
 	}
+    mysqli_close($conn);
 	return JSON_encode($response);
 }
 
@@ -74,6 +75,7 @@ function deleteProduct($id) {
         $response->message = 'Unable to delete variations';
     }
 
+    mysqli_close($conn);
     return json_encode($response);
 }
 
@@ -115,6 +117,7 @@ function createProduct($postData) {
         }
     }
 
+    mysqli_close($conn);
     // Return success
     return json_encode($response);
 }
@@ -150,16 +153,14 @@ function updateProduct($postData) {
     // Update variations
     $touchedIds = array();
     $storedIds = array();
+    $query = sprintf("SELECT id FROM variations WHERE productId = '%s'", mysqli_real_escape_string($conn, $id));
+    $result = mysqli_query($conn, $query);
+    $num = mysqli_num_rows($result);
+    for ($i = 0; $i < $num; $i++) {
+        $variationId = mysqli_result($result,$i,'id');
+        array_push($storedIds, $variationId);
+    }
     foreach($variations as $index=>$variation) {
-        $query = sprintf("SELECT id FROM variations WHERE productId = '%s'", mysqli_real_escape_string($conn, $id));
-    	$result = mysqli_query($conn, $query);
-    	$num = mysqli_num_rows($result);
-    	for ($i = 0; $i < $num; $i++) {
-            $variationId = mysqli_result($result,$i,'id');
-    		array_push($storedIds, $variationId);
-    	}
-
-
         // Update existing variation
         if (isset($variation->id)) {
             $variationId = $variation->id;
@@ -173,6 +174,10 @@ function updateProduct($postData) {
         } else {
             // Create new variation
             $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysqli_real_escape_string($conn, $variation->name), mysqli_real_escape_string($conn, $variation->svg), mysqli_real_escape_string($conn, $id), mysqli_real_escape_string($conn, $index));
+            if (!mysqli_query($conn, $sql)) {
+    			$response->valid = false;
+    			$response->message = 'Failed to add variation ' . $variation->name;
+    		}
         }
     }
     // Delete unmentioned variations
@@ -181,9 +186,13 @@ function updateProduct($postData) {
             continue;
         }
         $sql = sprintf("DELETE from variations WHERE id = '%s'", mysqli_real_escape_string($conn, $storedId));
+        if (!mysqli_query($conn, $sql)) {
+            $response->valid = false;
+            $response->message = 'Failed to remove variation ' . $storedId;
+        }
     }
 
-
+    mysqli_close($conn);
 	return json_encode($response);
 }
 
@@ -201,20 +210,17 @@ if ($_POST) {
 	//Delete
 	if (isset($_POST['delete'])) {
 		echo deleteProduct($_POST['id']);
-    	mysqli_close($conn);
         return;
 	}
 
 	//Create
 	if (isset($_POST['new'])) {
         echo createProduct($_POST);
-    	mysqli_close($conn);
         return;
 	}
 
 	//Update
     echo updateProduct($_POST);
-	mysqli_close($conn);
     return;
 }
 
