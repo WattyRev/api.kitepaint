@@ -172,7 +172,7 @@ function updateProduct($postData) {
     			$response->message = 'Unable to update variation ' . $variationId;
     		}
         } else {
-            $resoonse->message = 'Creating a new variation';
+            $response->message = 'Creating a new variation';
             // Create new variation
             $sql = sprintf("INSERT INTO variations (name,svg,productId,sortIndex) value ('%s','%s','%s','%s')", mysqli_real_escape_string($conn, $variation->name), mysqli_real_escape_string($conn, $variation->svg), mysqli_real_escape_string($conn, $id), mysqli_real_escape_string($conn, $index));
         }
