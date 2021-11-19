@@ -186,6 +186,10 @@ function updateProduct($postData) {
             continue;
         }
         $sql = sprintf("DELETE from variations WHERE id = '%s'", mysqli_real_escape_string($conn, $storedId));
+        if (!mysqli_query($conn, $sql)) {
+            $response->valid = false;
+            $response->message = 'Failed to remove variation ' . $storedId;
+        }
     }
 
     mysqli_close($conn);
