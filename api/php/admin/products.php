@@ -1,8 +1,7 @@
 <?php
 require_once "header.php";
-
+$conn = connectToDb();
 function getProducts($filter, $return) {
-    $conn = connectToDb();
     $query = "";
 	if(isset($filter)){
 		$query .= "WHERE";
@@ -51,7 +50,6 @@ function getProducts($filter, $return) {
 }
 
 function deleteProduct($id) {
-    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -78,7 +76,6 @@ function deleteProduct($id) {
 }
 
 function createProduct($postData) {
-    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -120,7 +117,6 @@ function createProduct($postData) {
 }
 
 function updateProduct($postData) {
-    $conn = connectToDb();
     $response = (object) array(
 		'valid' => true,
 		'message' => ''
@@ -190,6 +186,7 @@ function updateProduct($postData) {
 if ($_GET){
     $filter = isset($_GET['filter']) ? $_GET['filter'] : null;
     echo getProducts($filter, $_GET['return']);
+	mysqli_close($conn);
     return;
 }
 if ($_POST) {
@@ -218,4 +215,5 @@ if ($_POST) {
     return;
 }
 
+mysqli_close($conn);
 echo 'No GET or POST variables';
