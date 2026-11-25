@@ -96,16 +96,16 @@ if ($_GET){
 	}
 
 	if (isset($_GET['id'])) {
-		$query = sprintf("SELECT * FROM designs WHERE id = " . $_GET['id']);
+		$query = sprintf("SELECT * FROM designs WHERE id = %d", (int) $_GET['id']);
 	} else if (isset($_GET['status'])) {
-		$query = sprintf("SELECT * FROM designs WHERE status = " . $_GET['status']);
+		$query = sprintf("SELECT * FROM designs WHERE status = %d", (int) $_GET['status']);
 	} else {
 		$query = sprintf("SELECT * FROM designs");
 	}
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$design = (object) array();
