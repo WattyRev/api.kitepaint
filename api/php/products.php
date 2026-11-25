@@ -3,16 +3,8 @@ require_once "header.php";
 
 function getProducts($filter) {
     $conn = connectToDb();
-    $querySegment = "";
-    $count = 0;
-    foreach($filter as $metric => $value){
-        $count ++;
-        if ($count > 1) {
-            $querySegment .= ' AND ';
-        }
-        $querySegment .= "$metric  =  $value";
-    }
-    $query = sprintf("SELECT * FROM products WHERE $querySegment");
+    $querySegment = build_where_conditions($filter, array('id', 'manufacturer', 'status'), sql_escaper($conn));
+    $query = "SELECT * FROM products WHERE $querySegment";
 
     $result = mysqli_query($conn, $query);
     $num = mysqli_num_rows($result);
@@ -36,7 +28,7 @@ function getProducts($filter) {
 
 function getProduct($id) {
     $conn = connectToDb();
-    $query = sprintf("SELECT * FROM products WHERE id = " . $id);
+    $query = sprintf("SELECT * FROM products WHERE id = %d", (int) $id);
     $result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
 	$response = array();
@@ -82,7 +74,7 @@ function getAllProducts() {
 
 function getVariations($productId) {
     $conn = connectToDb();
-    $query = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex ASC");
+    $query = sprintf("SELECT * FROM variations WHERE productId = %d ORDER BY sortIndex ASC", (int) $productId);
     $result = mysqli_query($conn, $query);
     $num = mysqli_num_rows($result);
     $variations = array();
@@ -97,6 +89,7 @@ function getVariations($productId) {
     return $variations;
 }
 
+$conn = connectToDb();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (isset($_GET['filter'])) {
         echo getProducts($_GET['filter']);

@@ -1,7 +1,7 @@
 <?php
 //error_reporting(0); // we don't want to see errors on screen
 error_reporting(E_ALL);
-ini_set('display_errors', 'on');
+ini_set('display_errors', 'off');
 // Start a session
 session_start();
 require_once ('../db_connect.inc.php'); // include the database connection
@@ -37,8 +37,16 @@ if ($result['admin'] !== '1') {
 setcookie('Kp-Auth-Token', session_id(), time() + (86400 * 30), "/", 'kitepaint.com');
 $_SESSION['authGranted'] = true;
 
-// Get the domain
-$returnUrl = $_GET['returnUrl'];
+// Only redirect back to kitepaint sites (or localhost when on beta).
+$returnUrl = isset($_GET['returnUrl']) ? $_GET['returnUrl'] : '';
+$returnHost = strtolower((string) parse_url($returnUrl, PHP_URL_HOST));
+$returnScheme = strtolower((string) parse_url($returnUrl, PHP_URL_SCHEME));
+$isAllowedHost = $returnHost === 'kitepaint.com'
+    || substr($returnHost, -strlen('.kitepaint.com')) === '.kitepaint.com'
+    || (!$isProduction && in_array($returnHost, array('localhost', '127.0.0.1'), true));
+if (!in_array($returnScheme, array('http', 'https'), true) || !$isAllowedHost) {
+    $returnUrl = $isProduction ? 'https://admin.kitepaint.com/' : 'https://admin.beta.kitepaint.com/';
+}
 // TODO use cookies?
 header("Location: " . $returnUrl);
 die();

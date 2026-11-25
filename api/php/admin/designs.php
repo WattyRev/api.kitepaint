@@ -4,21 +4,11 @@ $conn = connectToDb();
 if ($_GET){
 	$filter = "";
 	if (isset($_GET['filter'])){
-		$filter .= "WHERE ";
-		$count = 0;
-		foreach($_GET['filter'] as $metric => $value){
-			$count ++;
-			if ($count > 1) {
-				$filter .= ' AND ';
-			}
-			$filter .= "$metric  =  $value";
-		}
+		$filter = "WHERE " . build_where_conditions($_GET['filter'], null, sql_escaper($conn));
 	}
-	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
-	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
-	$skip = isset($_GET['skip']) ? "OFFSET ". $_GET['skip']: "";
-	$queryString = "SELECT * FROM designs $filter $order $limit $skip";
-	$query = sprintf($queryString);
+	$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null);
+	$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null, isset($_GET['skip']) ? $_GET['skip'] : null);
+	$query = "SELECT * FROM designs $filter $order $limit";
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
