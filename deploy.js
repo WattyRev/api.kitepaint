@@ -5,8 +5,11 @@ const path = require("path");
 // Get command line arguments by name. Supported arguments:
 // host, user, pass, path, dist, verbose
 const args = process.argv.slice(2).reduce((accumulatedArguments, arg) => {
-    const split = arg.split("=");
-    accumulatedArguments[split[0]] = split[1];
+    // Split on the first "=" only so values (e.g. passwords) may contain "="
+    const separatorIndex = arg.indexOf("=");
+    accumulatedArguments[arg.slice(0, separatorIndex)] = arg.slice(
+        separatorIndex + 1
+    );
     return accumulatedArguments;
 }, {});
 const host = args.host;
