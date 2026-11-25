@@ -5,7 +5,9 @@ require_once("user.functions.inc.php");
 require_once("display.functions.inc.php");
 require_once("login.functions.inc.php");
 require_once("validation.functions.inc.php");
- 
+require_once("query.functions.inc.php");
+
+set_exception_handler('handle_uncaught_exception');
  
 function generate_code($length = 10) {
  
@@ -15,9 +17,8 @@ function generate_code($length = 10) {
  
     $code = "";
     $chars = "abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
-    srand((double)microtime() * 1000000);
     for ($i = 0; $i < $length; $i++) {
-        $code = $code . substr($chars, rand() % strlen($chars), 1);
+        $code = $code . $chars[random_int(0, strlen($chars) - 1)];
     }
     return $code;
  

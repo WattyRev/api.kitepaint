@@ -1,0 +1,22 @@
+{
+    "name": "wattyrev/api.kitepaint",
+    "description": "KitePaint PHP API",
+    "type": "project",
+    "license": "ISC",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": "for f in $(find api -name '*.php'); do php -l \"$f\" > /dev/null || exit 1; done",
+        "test": "phpunit"
+    }
+}

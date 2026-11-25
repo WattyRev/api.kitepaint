@@ -1,0 +1,54 @@
+name: Test and deploy
+
+on:
+  pull_request:
+  push:
+    branches: [staging, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+          coverage: none
+      - run: composer install --no-interaction --no-progress
+      - run: composer lint
+      - run: composer test
+
+  deploy-beta:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    needs: test
+    runs-on: ubuntu-latest
+    concurrency: deploy-beta
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.12.1"
+      - run: npm ci
+      - run: npm run deploy:beta -- user="$SFTP_USER" pass="$SFTP_PASS" host="$SFTP_HOST"
+        env:
+          SFTP_HOST: 192.254.225.178
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+
+  deploy-prod:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: test
+    runs-on: ubuntu-latest
+    concurrency: deploy-prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.12.1"
+      - run: npm ci
+      - run: npm run deploy:prod -- user="$SFTP_USER" pass="$SFTP_PASS" host="$SFTP_HOST"
+        env:
+          SFTP_HOST: 192.254.225.178
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}

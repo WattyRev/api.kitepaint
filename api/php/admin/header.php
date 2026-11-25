@@ -1,7 +1,7 @@
 <?php
 //error_reporting(0); // we don't want to see errors on screen
 error_reporting(E_ALL);
-ini_set('display_errors', 'on');
+ini_set('display_errors', 'off');
 // Start a session
 $headers = apache_request_headers();
 if (isset($headers['Kp-Auth-Token'])) {

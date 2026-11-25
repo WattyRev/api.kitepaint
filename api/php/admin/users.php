@@ -4,19 +4,11 @@ $conn = connectToDb();
 if ($_GET){
 	$filter = "";
 	if (isset($_GET['filter'])){
-		$filter .= "WHERE ";
-		$count = 0;
-		foreach($_GET['filter'] as $metric => $value){
-			$count ++;
-			if ($count > 1) {
-				$filter .= ' AND ';
-			}
-			$filter .= "$metric  =  $value";
-		}
+		$filter = "WHERE " . build_where_conditions($_GET['filter'], null, sql_escaper($conn));
 	}
-	$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
-	$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
-	$query = sprintf("SELECT * FROM login $filter $order $limit");
+	$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
+	$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null);
+	$query = "SELECT * FROM login $filter $order $limit";
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
@@ -117,7 +109,7 @@ if ($_GET){
 		$email = $_POST['email'];
 
 		$query = sprintf("select loginid from login where loginid = '%s' limit 1",
-			$id);
+			mysqli_real_escape_string($conn, $id));
 
 		$result = mysqli_query($conn, $query);
 

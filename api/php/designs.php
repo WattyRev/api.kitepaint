@@ -38,17 +38,9 @@ if ($_GET){
 	$productStatuses = getProductStatusesById();
 	$status = '';
 	if (isset($_GET['filter'])) {
-		$filter = "";
-		$count = 0;
-		foreach($_GET['filter'] as $metric => $value){
-			if ($metric == 'status') {
-				$status = "$value";
-			}
-			$count ++;
-			if ($count > 1) {
-				$filter .= ' AND ';
-			}
-			$filter .= "$metric  =  $value";
+		$filter = build_where_conditions($_GET['filter'], array('id', 'active', 'status', 'user', 'product'), sql_escaper($conn));
+		if (isset($_GET['filter']['status'])) {
+			$status = (string) $_GET['filter']['status'];
 		}
 
 		$productFilter = '';
@@ -68,9 +60,9 @@ if ($_GET){
 			$productFilter = "AND product in ($productIdList)";
 		}
 
-		$limit = isset($_GET['limit']) ? "LIMIT " . $_GET['limit'] : "";
-		$order = isset($_GET['order']) ? "ORDER BY " . $_GET['order'][0] . " " . $_GET['order'][1] : "";
-		$query = sprintf("SELECT * FROM designs WHERE $filter $productFilter $order $limit");
+		$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
+		$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null, array('id', 'created', 'updated', 'name', 'status'));
+		$query = "SELECT * FROM designs WHERE $filter $productFilter $order $limit";
 
 		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
@@ -96,16 +88,16 @@ if ($_GET){
 	}
 
 	if (isset($_GET['id'])) {
-		$query = sprintf("SELECT * FROM designs WHERE id = " . $_GET['id']);
+		$query = sprintf("SELECT * FROM designs WHERE id = %d", (int) $_GET['id']);
 	} else if (isset($_GET['status'])) {
-		$query = sprintf("SELECT * FROM designs WHERE status = " . $_GET['status']);
+		$query = sprintf("SELECT * FROM designs WHERE status = %d", (int) $_GET['status']);
 	} else {
 		$query = sprintf("SELECT * FROM designs");
 	}
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
-	mysqli_close();
+	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
 		$design = (object) array();
@@ -190,7 +182,7 @@ if ($_GET){
 				$image = str_replace('data:image/png;base64,', '', $image);
    				$image = str_replace(' ', '+', $image);
    				$data = base64_decode($image);
-   				$file = UPLOAD_DIR . $response->id . str_replace(' ', '', $type) . '.png';
+   				$file = UPLOAD_DIR . (int) $response->id . preg_replace('/[^A-Za-z0-9_-]/', '', $type) . '.png';
    				$success = file_put_contents($file, $data);
    				$images[$type] = str_replace('..', '', $file);
    				if(!$success) {
@@ -234,7 +226,7 @@ if ($_GET){
 				$image = str_replace('data:image/png;base64,', '', $image);
    				$image = str_replace(' ', '+', $image);
    				$data = base64_decode($image);
-   				$file = UPLOAD_DIR . $_POST['id'] . str_replace(' ', '', $type) . '.png';
+   				$file = UPLOAD_DIR . (int) $_POST['id'] . preg_replace('/[^A-Za-z0-9_-]/', '', $type) . '.png';
    				$success = file_put_contents($file, $data);
    				$images[$type] = str_replace('..', '', $file);
    				if(!$success) {
