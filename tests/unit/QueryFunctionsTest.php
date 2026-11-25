@@ -117,10 +117,27 @@ class QueryFunctionsTest extends TestCase
         $this->assertSame('LIMIT 0', build_limit_clause(0));
     }
 
+    public function testBuildLimitClauseAcceptsOffsetCountForm(): void
+    {
+        // The public site paginates with limit="<offset>, <count>".
+        $this->assertSame('LIMIT 0, 50', build_limit_clause('0, 50'));
+        $this->assertSame('LIMIT 24, 48', build_limit_clause('24,48'));
+    }
+
+    public function testBuildLimitClauseRejectsOffsetCountFormWithSkip(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_limit_clause('0, 50', '10');
+    }
+
     public static function invalidLimits(): array
     {
         return [
             'injection' => ['1; DROP TABLE login'],
+            'injection after comma' => ['0, 50 UNION SELECT password FROM login'],
+            'three numbers' => ['1, 2, 3'],
+            'negative offset' => ['-1, 50'],
+            'trailing comma' => ['10,'],
             'negative' => ['-1'],
             'decimal' => ['1.5'],
             'empty' => [''],

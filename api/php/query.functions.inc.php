@@ -49,13 +49,20 @@ function build_order_clause($order, $allowedColumns = null) {
     return "ORDER BY `$column` $direction";
 }
 
-// Builds "LIMIT n" or "LIMIT n OFFSET m".
+// Builds "LIMIT n", "LIMIT n OFFSET m", or "LIMIT offset, count". The last form is MySQL's own
+// syntax, which the public site uses for pagination (e.g. limit=24, 48).
 function build_limit_clause($limit, $skip = null) {
     if ($limit === null) {
         if ($skip !== null) {
             throw new InvalidArgumentException('skip requires limit');
         }
         return '';
+    }
+    if (is_string($limit) && preg_match('/^(\d+)\s*,\s*(\d+)$/', $limit, $matches)) {
+        if ($skip !== null) {
+            throw new InvalidArgumentException('skip cannot be combined with an offset, count limit');
+        }
+        return 'LIMIT ' . (int) $matches[1] . ', ' . (int) $matches[2];
     }
     $clause = 'LIMIT ' . parse_non_negative_int($limit, 'limit');
     if ($skip !== null) {
