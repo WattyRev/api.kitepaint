@@ -4,16 +4,9 @@ $conn = connectToDb();
 if ($_GET){
 
 	if (isset($_GET['filter'])) {
-		$filter = "";
-		$count = 0;
-		foreach($_GET['filter'] as $metric => $value){
-			$count ++;
-			if ($count > 1) {
-				$filter .= ' AND ';
-			}
-			$filter .= "$metric  =  $value";
-		}
-		$query = sprintf("SELECT * FROM manufacturers WHERE $filter");
+		$filter = build_where_conditions($_GET['filter'], array('id', 'activated'), sql_escaper($conn));
+		$return = validate_return_columns(isset($_GET['return']) ? $_GET['return'] : array(), array('id', 'name', 'logo', 'website', 'activated', 'created'));
+		$query = "SELECT * FROM manufacturers WHERE $filter";
 
 		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
@@ -21,7 +14,7 @@ if ($_GET){
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
 			$manufacturers = (object) array();
-			foreach ($_GET['return'] as $key=>$metric){
+			foreach ($return as $metric){
 				$manufacturers->$metric = mysqli_result($result,$i,$metric);
 				if ($metric === 'created') {
 					$manufacturers->$metric = date("m/d/Y", strtotime($manufacturers->$metric));
@@ -34,7 +27,7 @@ if ($_GET){
 	}
 
 	if (isset($_GET['id'])) {
-		$query = sprintf("SELECT * FROM manufacturers WHERE id = " . $_GET['id']);
+		$query = sprintf("SELECT * FROM manufacturers WHERE id = %d", (int) $_GET['id']);
 	} else if (isset($_GET['activated'])) {
 		$query = sprintf("SELECT * FROM manufacturers WHERE activated = 1");
 	} else {

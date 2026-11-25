@@ -307,7 +307,7 @@ function lostPassword($username, $email) {
     $conn = connectToDb();
 
     $query = sprintf("select loginid from login where username = '%s' and email = '%s' limit 1",
-        $username, $email);
+        mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, $email));
 
     $result = mysqli_query($conn, $query);
 

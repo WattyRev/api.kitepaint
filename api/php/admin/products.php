@@ -5,17 +5,9 @@ function getProducts($filter, $return) {
     $conn = connectToDb();
     $query = "";
 	if(isset($filter)){
-		$query .= "WHERE";
-		$count = 0;
-		foreach($filter as $metric => $value){
-			$count ++;
-			if ($count > 1) {
-				$query .= ' AND ';
-			}
-			$query .= "$metric  =  $value";
-		}
+		$query = "WHERE " . build_where_conditions($filter, null, sql_escaper($conn));
 	}
-	$query = sprintf("SELECT * FROM products $query");
+	$query = "SELECT * FROM products $query";
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
@@ -25,7 +17,7 @@ function getProducts($filter, $return) {
 		$product = (object) array();
 		foreach ($return as $key=>$metric){
             if ($metric === 'variations') {
-                $variationsQuery = sprintf("SELECT * FROM variations WHERE productId = $productId ORDER BY sortIndex");
+                $variationsQuery = sprintf("SELECT * FROM variations WHERE productId = %d ORDER BY sortIndex", (int) $productId);
             	$variationsResult = mysqli_query($conn, $variationsQuery);
             	$variationsNum = mysqli_num_rows($variationsResult);
                 $variations = array();
