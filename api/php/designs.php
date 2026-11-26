@@ -60,12 +60,34 @@ if ($_GET){
 			$productFilter = "AND product in ($productIdList)";
 		}
 
+		// Optional filters used by the public designs page. They are ANDed with the filters above.
+		$escape = sql_escaper($conn);
+		if (isset($_GET['manufacturers']) && $_GET['manufacturers'] !== array()) {
+			$productFilter .= ' AND product IN (SELECT id FROM products WHERE '
+				. build_in_clause('manufacturer', $_GET['manufacturers'], $escape) . ')';
+		}
+		if (isset($_GET['products']) && $_GET['products'] !== array()) {
+			$productFilter .= ' AND ' . build_in_clause('product', $_GET['products'], $escape);
+		}
+		if (isset($_GET['name']) && $_GET['name'] !== '') {
+			$productFilter .= ' AND ' . build_contains_clause('name', $_GET['name'], $escape);
+		}
+
 		$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
 		$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null, array('id', 'created', 'updated', 'name', 'status'));
 		$query = "SELECT * FROM designs WHERE $filter $productFilter $order $limit";
 
 		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
+
+		// When requested, also report the total number of matching designs (ignoring the limit)
+		// so that clients can paginate. Opt-in so existing callers keep receiving a bare array.
+		$includeTotal = isset($_GET['includeTotal']) && (string) $_GET['includeTotal'] !== '' && (string) $_GET['includeTotal'] !== '0';
+		$total = null;
+		if ($includeTotal) {
+			$countResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM designs WHERE $filter $productFilter");
+			$total = $countResult ? (int) mysqli_result($countResult, 0, "total") : 0;
+		}
 		mysqli_close($conn);
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
@@ -82,6 +104,10 @@ if ($_GET){
 			$design->images = mysqli_result($result,$i,"images");
 			$design->productStatus = $productStatuses[$design->product];
 			array_push($response, $design);
+		}
+		if ($includeTotal) {
+			echo JSON_encode(array('data' => $response, 'total' => $total));
+			return;
 		}
 		echo JSON_encode($response);
 		return;
