@@ -19,6 +19,11 @@ if (!isset($_POST['username']) || !isset($_POST['password'])) {
 	return;
 }
 // retrieve the username and password sent from login form & check the login.
+// Limit password guesses per client address.
+if (!rate_limit_allow('login', kp_client_ip(), 10, 900)) {
+	bad_login('Too many attempts. Please wait a few minutes and try again.');
+	return;
+}
 $response = checkLogin($_POST['username'], $_POST['password']);
 
 if ($response->valid) {

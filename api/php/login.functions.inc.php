@@ -44,7 +44,9 @@ function checkLogin($u, $p){
     // with the same username and password, so the login will fail.
     if (mysqli_num_rows($result) == 0) {
         $response->valid = false;
-        $response->message = 'An account could not be found.';
+        $response->message = unactivated_login_matches($conn, $u, $p)
+            ? 'This account has not been activated yet. Check your email for the activation link, or request a new one.'
+            : 'An account could not be found.';
         return $response;
     } elseif (mysqli_num_rows($result) != 1) {
         $response->valid = false;
@@ -163,6 +165,16 @@ function checkLogin($u, $p){
         // Now we show the userbox
         return $response;
     }
+}
+
+// True if the username and password match an account that hasn't been activated yet.
+// Only reports a match when the password is correct, so it doesn't reveal which accounts exist.
+function unactivated_login_matches($conn, $username, $password) {
+    global $seed;
+    $query = sprintf("SELECT loginid FROM login WHERE username = '%s' AND password = '%s' AND activated = 0 AND disabled = 0 AND deleted = 0 LIMIT 1",
+        mysqli_real_escape_string($conn, $username), mysqli_real_escape_string($conn, sha1($password . $seed)));
+    $result = mysqli_query($conn, $query);
+    return $result !== false && mysqli_num_rows($result) > 0;
 }
 
 function updateLogin($username, $loginid, $actcode) {

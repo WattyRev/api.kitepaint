@@ -61,13 +61,8 @@ async function uploadContents(client, folderToUpload, uploadTo) {
             return uploadContents(client, localPath, remotePath);
         }
 
-        const remoteItemSize = remoteItem ? remoteItem.size : 0;
-        const localItemSize = localItemStats.size;
-        if (remoteItemSize === localItemSize) {
-            console.log(`No changes made to ${localPath}. Skipping upload.`);
-            return new Promise(resolve => resolve());
-        }
-
+        // Always upload. Comparing sizes alone missed same-length edits, so a fix
+        // could be reported as deployed when the server still had the old file.
         console.log(`Uploading ${localPath} ...`);
         return client.put(localPath, remotePath).then(() => {
             console.log(`Uploaded ${localPath}.`);

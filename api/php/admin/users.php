@@ -62,6 +62,11 @@ if ($_GET){
 			$response->message = 'Invalid username';
 			echo json_encode($response);
 			return;
+		} elseif (is_reserved_username($username)) {
+			$response->valid = false;
+			$response->message = 'Invalid username';
+			echo json_encode($response);
+			return;
 		} elseif (!valid_email($email)) {
 			$response->valid = false;
 			$response->message = 'Invalid email';
@@ -149,6 +154,12 @@ if ($_GET){
 
 	//Update
 	$id = $_POST['loginid'];
+	if (isset($_POST['username']) && is_reserved_username($_POST['username'])) {
+		$response->valid = false;
+		$response->message = 'Invalid username';
+		echo json_encode($response);
+		return;
+	}
 	$vars = array(
 		'username' => $_POST['username'],
 		'email' => $_POST['email'],
