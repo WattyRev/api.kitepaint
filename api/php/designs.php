@@ -66,6 +66,15 @@ if ($_GET){
 
 		$result = mysqli_query($conn, $query);
 		$num = mysqli_num_rows($result);
+
+		// When requested, also report the total number of matching designs (ignoring the limit)
+		// so that clients can paginate. Opt-in so existing callers keep receiving a bare array.
+		$includeTotal = isset($_GET['includeTotal']) && (string) $_GET['includeTotal'] !== '' && (string) $_GET['includeTotal'] !== '0';
+		$total = null;
+		if ($includeTotal) {
+			$countResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM designs WHERE $filter $productFilter");
+			$total = $countResult ? (int) mysqli_result($countResult, 0, "total") : 0;
+		}
 		mysqli_close($conn);
 		$response = array();
 		for ($i = 0; $i < $num; $i++) {
@@ -82,6 +91,10 @@ if ($_GET){
 			$design->images = mysqli_result($result,$i,"images");
 			$design->productStatus = $productStatuses[$design->product];
 			array_push($response, $design);
+		}
+		if ($includeTotal) {
+			echo JSON_encode(array('data' => $response, 'total' => $total));
+			return;
 		}
 		echo JSON_encode($response);
 		return;
