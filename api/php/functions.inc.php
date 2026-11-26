@@ -7,6 +7,7 @@ require_once("login.functions.inc.php");
 require_once("validation.functions.inc.php");
 require_once("query.functions.inc.php");
 require_once("image.functions.inc.php");
+require_once("color.functions.inc.php");
 require_once("ratelimit.functions.inc.php");
 
 set_exception_handler('handle_uncaught_exception');

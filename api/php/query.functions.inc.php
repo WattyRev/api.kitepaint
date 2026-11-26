@@ -61,6 +61,48 @@ function build_contains_clause($column, $term, callable $escape, $allowedColumns
     return "LOWER(`$column`) LIKE LOWER('%" . $escape($literal) . "%')";
 }
 
+// Builds a clause that narrows designs.id to designs using the given colors, using the design_colors
+// table. $colors is a list of "#rrggbb" values (other values are rejected). $match is 'any' (the design
+// uses at least one of the colors) or 'all' (the design uses every color). When $exclusive is true,
+// the design may not use any color outside the list. Returns '' when no colors are given.
+function build_color_filter_clause($colors, $match, $exclusive, callable $escape) {
+    if ($colors === null || $colors === array()) {
+        return '';
+    }
+    if (!is_array($colors)) {
+        throw new InvalidArgumentException('colors must be an array');
+    }
+    if ($match !== 'any' && $match !== 'all') {
+        throw new InvalidArgumentException('colorsMatch must be any or all');
+    }
+
+    $selected = array();
+    foreach ($colors as $color) {
+        $normalized = is_string($color) ? normalize_hex_color($color) : null;
+        if ($normalized === null) {
+            throw new InvalidArgumentException('Invalid color');
+        }
+        $selected[$normalized] = true;
+    }
+    $selected = array_keys($selected);
+
+    $quoted = array();
+    foreach ($selected as $color) {
+        $quoted[] = "'" . $escape($color) . "'";
+    }
+    $inList = implode(', ', $quoted);
+
+    $having = '';
+    if ($match === 'all') {
+        $having = ' GROUP BY design_id HAVING COUNT(DISTINCT color) = ' . count($selected);
+    }
+    $clause = "designs.id IN (SELECT design_id FROM design_colors WHERE color IN ($inList)$having)";
+    if ($exclusive) {
+        $clause .= " AND designs.id NOT IN (SELECT design_id FROM design_colors WHERE color NOT IN ($inList))";
+    }
+    return $clause;
+}
+
 // Builds "ORDER BY `column` ASC|DESC" from an array of [column, direction].
 function build_order_clause($order, $allowedColumns = null) {
     if ($order === null) {
