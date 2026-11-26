@@ -60,6 +60,19 @@ if ($_GET){
 			$productFilter = "AND product in ($productIdList)";
 		}
 
+		// Optional filters used by the public designs page. They are ANDed with the filters above.
+		$escape = sql_escaper($conn);
+		if (isset($_GET['manufacturers']) && $_GET['manufacturers'] !== array()) {
+			$productFilter .= ' AND product IN (SELECT id FROM products WHERE '
+				. build_in_clause('manufacturer', $_GET['manufacturers'], $escape) . ')';
+		}
+		if (isset($_GET['products']) && $_GET['products'] !== array()) {
+			$productFilter .= ' AND ' . build_in_clause('product', $_GET['products'], $escape);
+		}
+		if (isset($_GET['name']) && $_GET['name'] !== '') {
+			$productFilter .= ' AND ' . build_contains_clause('name', $_GET['name'], $escape);
+		}
+
 		$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
 		$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null, array('id', 'created', 'updated', 'name', 'status'));
 		$query = "SELECT * FROM designs WHERE $filter $productFilter $order $limit";

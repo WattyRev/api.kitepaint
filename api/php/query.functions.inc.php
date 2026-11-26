@@ -33,6 +33,34 @@ function build_where_conditions($filter, $allowedColumns, callable $escape) {
     return implode(' AND ', $conditions);
 }
 
+// Builds "`column` IN ('a', 'b')" from a list of scalar values. Throws if the list is empty or
+// has non-scalar values, so callers should only use it when there are values to match.
+function build_in_clause($column, $values, callable $escape, $allowedColumns = null) {
+    validate_column($column, $allowedColumns);
+    if (!is_array($values) || count($values) === 0) {
+        throw new InvalidArgumentException("$column must be a non-empty array");
+    }
+    $quoted = array();
+    foreach ($values as $value) {
+        if (!is_scalar($value)) {
+            throw new InvalidArgumentException("Invalid value for $column");
+        }
+        $quoted[] = "'" . $escape((string) $value) . "'";
+    }
+    return "`$column` IN (" . implode(', ', $quoted) . ")";
+}
+
+// Builds "LOWER(`column`) LIKE LOWER('%term%')" for a case-insensitive "contains" search. The
+// LIKE wildcards (% and _) and the backslash escape character in the term are matched literally.
+function build_contains_clause($column, $term, callable $escape, $allowedColumns = null) {
+    validate_column($column, $allowedColumns);
+    if (!is_scalar($term)) {
+        throw new InvalidArgumentException("Invalid value for $column");
+    }
+    $literal = str_replace(array('\\', '%', '_'), array('\\\\', '\\%', '\\_'), (string) $term);
+    return "LOWER(`$column`) LIKE LOWER('%" . $escape($literal) . "%')";
+}
+
 // Builds "ORDER BY `column` ASC|DESC" from an array of [column, direction].
 function build_order_clause($order, $allowedColumns = null) {
     if ($order === null) {

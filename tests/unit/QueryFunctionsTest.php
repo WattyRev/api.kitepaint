@@ -84,6 +84,75 @@ class QueryFunctionsTest extends TestCase
         build_where_conditions(['id' => ['1', '2']], null, $this->escape());
     }
 
+    public function testBuildInClauseQuotesAndEscapesValues(): void
+    {
+        $this->assertSame(
+            "`product` IN ('a', '1\\' OR \\'1\\'=\\'1')",
+            build_in_clause('product', ['a', "1' OR '1'='1"], $this->escape())
+        );
+    }
+
+    public function testBuildInClauseRejectsEmptyList(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_in_clause('product', [], $this->escape());
+    }
+
+    public function testBuildInClauseRejectsNonArray(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_in_clause('product', 'a', $this->escape());
+    }
+
+    public function testBuildInClauseRejectsNestedValues(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_in_clause('product', [['a']], $this->escape());
+    }
+
+    public function testBuildInClauseRejectsInvalidColumn(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_in_clause('product` OR 1=1 --', ['a'], $this->escape());
+    }
+
+    public function testBuildContainsClause(): void
+    {
+        $this->assertSame(
+            "LOWER(`name`) LIKE LOWER('%blue kite%')",
+            build_contains_clause('name', 'blue kite', $this->escape())
+        );
+    }
+
+    public function testBuildContainsClauseMatchesLikeWildcardsLiterally(): void
+    {
+        // Each of \, % and _ gets a LIKE escape backslash; the escaper then doubles backslashes.
+        $this->assertSame(
+            "LOWER(`name`) LIKE LOWER('%100\\\\%\\\\_\\\\\\\\%')",
+            build_contains_clause('name', '100%_\\', $this->escape())
+        );
+    }
+
+    public function testBuildContainsClauseEscapesQuotes(): void
+    {
+        $this->assertSame(
+            "LOWER(`name`) LIKE LOWER('%it\\'s%')",
+            build_contains_clause('name', "it's", $this->escape())
+        );
+    }
+
+    public function testBuildContainsClauseRejectsArrayTerm(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_contains_clause('name', ['a'], $this->escape());
+    }
+
+    public function testBuildContainsClauseRejectsInvalidColumn(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_contains_clause('name) OR (1', 'a', $this->escape());
+    }
+
     public function testBuildOrderClause(): void
     {
         $this->assertSame('ORDER BY `id` DESC', build_order_clause(['id', 'desc'], ['id']));
