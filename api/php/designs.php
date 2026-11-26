@@ -72,6 +72,13 @@ if ($_GET){
 		if (isset($_GET['name']) && $_GET['name'] !== '') {
 			$productFilter .= ' AND ' . build_contains_clause('name', $_GET['name'], $escape);
 		}
+		// Colors: 'colorsMatch' is any (default) or all, and 'colorsOnly=1' excludes designs that use other colors.
+		$colorsMatch = isset($_GET['colorsMatch']) ? $_GET['colorsMatch'] : 'any';
+		$colorsOnly = isset($_GET['colorsOnly']) && is_string($_GET['colorsOnly']) && in_array($_GET['colorsOnly'], array('1', 'true'), true);
+		$colorClause = build_color_filter_clause(isset($_GET['colors']) ? $_GET['colors'] : null, $colorsMatch, $colorsOnly, $escape);
+		if ($colorClause !== '') {
+			$productFilter .= ' AND ' . $colorClause;
+		}
 
 		$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
 		$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null, array('id', 'created', 'updated', 'name', 'status'));
@@ -201,6 +208,12 @@ if ($_GET){
 		if (mysqli_query($conn, $sql)) {
 			$id = mysqli_insert_id($conn);
 			$response->id = $id;
+			if (!sync_design_colors($conn, $id, $_POST['variations'])) {
+				$response->valid = false;
+				$response->message = 'Unable to save the colors';
+				echo json_encode($response);
+				return;
+			}
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to save';
@@ -273,6 +286,11 @@ if ($_GET){
 				$response->message = 'Unable to change ' . $metric;
 			}
 		}
+		if (isset($_POST['variations']) && !sync_design_colors($conn, $id, $_POST['variations'])) {
+			$response->valid = false;
+			$response->message = 'Unable to change colors';
+		}
+
 		$query = sprintf("update designs set updated = now() where id = '%s'",
 		mysqli_real_escape_string($conn, $id));
 

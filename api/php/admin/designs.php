@@ -39,7 +39,7 @@ if ($_GET){
 			mysqli_real_escape_string($conn, $_POST['id']));
 
 		if (mysqli_query($conn, $query)) {
-
+			delete_design_colors($conn, $_POST['id']);
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to delete design';
@@ -83,6 +83,11 @@ if ($_GET){
 			$response->valid = false;
 			$response->message = 'Unable to change ' . $metric;
 		}
+	}
+
+	if (isset($_POST['variations']) && !sync_design_colors($conn, $id, $_POST['variations'])) {
+		$response->valid = false;
+		$response->message = 'Unable to change colors';
 	}
 
 	$query = sprintf("update designs set updated = now() where id = '%s'",
