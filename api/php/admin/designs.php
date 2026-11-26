@@ -86,7 +86,7 @@ if ($_GET){
 	}
 
 	$query = sprintf("update designs set updated = now() where id = '%s'",
-		mysqli_real_escape_string($conn, $val), mysqli_real_escape_string($conn, $id));
+		mysqli_real_escape_string($conn, $id));
 
 	if (mysqli_query($conn, $query)) {
 	} else {

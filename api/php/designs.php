@@ -157,16 +157,24 @@ if ($_GET){
 
 		$code = generate_code(20);
 
+		$prepared = null;
+		if (isset($_POST['images'])) {
+			$prepared = prepare_design_images($_POST['images']);
+			if (!$prepared['valid']) {
+				$response->valid = false;
+				$response->message = $prepared['message'];
+				echo json_encode($response);
+				return;
+			}
+		}
+
 		$sql = sprintf("INSERT INTO designs (created, updated, name, user, product, variations, status) value (now(), now(), '%s', '%s', '%s', '%s', '%s')",
 		mysqli_real_escape_string($conn, $name), mysqli_real_escape_string($conn, $user)
 		, mysqli_real_escape_string($conn, $product), mysqli_real_escape_string($conn, $variations), mysqli_real_escape_string($conn, $status));
 
-
 		if (mysqli_query($conn, $sql)) {
 			$id = mysqli_insert_id($conn);
-
 			$response->id = $id;
-
 		} else {
 			$response->valid = false;
 			$response->message = 'Unable to save';
@@ -174,30 +182,22 @@ if ($_GET){
 			return;
 		}
 
-		if (isset($_POST['images'])) {
-			$p_images = json_decode($_POST['images']);
-			define('UPLOAD_DIR', '../img/designs/');
-			$images = array();
-			foreach($p_images as $type=>$image) {
-				$image = str_replace('data:image/png;base64,', '', $image);
-   				$image = str_replace(' ', '+', $image);
-   				$data = base64_decode($image);
-   				$file = UPLOAD_DIR . (int) $response->id . preg_replace('/[^A-Za-z0-9_-]/', '', $type) . '.png';
-   				$success = file_put_contents($file, $data);
-   				$images[$type] = str_replace('..', '', $file);
-   				if(!$success) {
-   					$response->message = 'Unable to save the image';
-   				}
+		if ($prepared !== null) {
+			$saved = write_design_images((int) $response->id, $prepared['images'], '../img/designs/');
+			if ($saved === false) {
+				$response->valid = false;
+				$response->message = 'Unable to save the image';
+				echo json_encode($response);
+				return;
 			}
-			$response->images = JSON_encode($images);
+			$response->images = JSON_encode($saved);
 
 			$query = sprintf("update designs set images = '%s' where id = '%s'",
 				mysqli_real_escape_string($conn, $response->images), mysqli_real_escape_string($conn, $response->id));
 
-			if (mysqli_query($conn, $query)) {
-			} else {
+			if (!mysqli_query($conn, $query)) {
 				$response->valid = false;
-				$response->message = 'Unable to change ' . $metric;
+				$response->message = 'Unable to save the images';
 			}
 		}
 		$response->name = $name;
@@ -219,22 +219,22 @@ if ($_GET){
 			$vars['status'] = $_POST['status'];
 		}
 		if (isset($_POST['images'])) {
-			$p_images = json_decode($_POST['images']);
-			define('UPLOAD_DIR', '../img/designs/');
-			$images = array();
-			foreach($p_images as $type=>$image) {
-				$image = str_replace('data:image/png;base64,', '', $image);
-   				$image = str_replace(' ', '+', $image);
-   				$data = base64_decode($image);
-   				$file = UPLOAD_DIR . (int) $_POST['id'] . preg_replace('/[^A-Za-z0-9_-]/', '', $type) . '.png';
-   				$success = file_put_contents($file, $data);
-   				$images[$type] = str_replace('..', '', $file);
-   				if(!$success) {
-   					$response->message = 'Unable to save the image';
-   				}
+			$prepared = prepare_design_images($_POST['images']);
+			if (!$prepared['valid']) {
+				$response->valid = false;
+				$response->message = $prepared['message'];
+				echo json_encode($response);
+				return;
 			}
-			$vars['images'] = JSON_encode($images);
-			$response->images = JSON_encode($images);
+			$saved = write_design_images((int) $id, $prepared['images'], '../img/designs/');
+			if ($saved === false) {
+				$response->valid = false;
+				$response->message = 'Unable to save the image';
+				echo json_encode($response);
+				return;
+			}
+			$vars['images'] = JSON_encode($saved);
+			$response->images = JSON_encode($saved);
 		}
 
 		foreach($vars as $metric => $val){

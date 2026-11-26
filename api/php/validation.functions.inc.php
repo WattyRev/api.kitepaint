@@ -2,6 +2,9 @@
  
 #### Validation functions ####
 
+// Usernames starting with this prefix are reserved for the placeholders given to deleted accounts.
+const KP_DELETED_PREFIX = 'deleted-';
+
 //email addresses must have one @ symbol
 function valid_email($email) {
  
@@ -16,6 +19,21 @@ function valid_email($email) {
     } else {
         return false;
     }
+}
+
+// True if a username is reserved for deleted-account placeholders.
+function is_reserved_username($username) {
+    return stripos((string) $username, KP_DELETED_PREFIX) === 0;
+}
+
+// Placeholder username for a deleted account. It frees the real username for reuse. The loginid makes it unique.
+function deleted_account_username($loginid) {
+    return KP_DELETED_PREFIX . (int) $loginid;
+}
+
+// Placeholder email for a deleted account. It frees the real email for reuse. The loginid makes it unique.
+function deleted_account_email($loginid) {
+    return KP_DELETED_PREFIX . (int) $loginid . '@deleted.invalid';
 }
  
 //usernames are 3-30 characters, and contain a-z, A-Z, 0-9

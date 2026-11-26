@@ -2,6 +2,14 @@
  
 #### Display Functions ####
 
+function resend_activation_response($sent, $message) {
+  $content = (object) array(
+      'sent' => $sent,
+      'message' => $message
+  );
+  echo json_encode($content);
+}
+
 function activate_error() {
   $content = (object) array(
       'activated' => false
