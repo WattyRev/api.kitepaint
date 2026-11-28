@@ -153,6 +153,74 @@ class QueryFunctionsTest extends TestCase
         build_contains_clause('name) OR (1', 'a', $this->escape());
     }
 
+    public function testBuildAdminFilterClauseWithoutFilter(): void
+    {
+        $this->assertSame('', build_admin_filter_clause(null, ['name'], $this->escape()));
+        $this->assertSame('', build_admin_filter_clause([], ['name'], $this->escape()));
+    }
+
+    public function testBuildAdminFilterClauseUsesContainsForTextColumns(): void
+    {
+        $this->assertSame(
+            "LOWER(`name`) LIKE LOWER('%Blue%')",
+            build_admin_filter_clause(['name' => 'Blue'], ['name'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminFilterClauseUsesExactMatchForOtherColumns(): void
+    {
+        $this->assertSame(
+            "`id` = '12'",
+            build_admin_filter_clause(['id' => '12'], ['name'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminFilterClauseMixesContainsAndExact(): void
+    {
+        $this->assertSame(
+            "LOWER(`email`) LIKE LOWER('%@gmail%') AND `loginid` = '3'",
+            build_admin_filter_clause(['email' => '@gmail', 'loginid' => '3'], ['username', 'email'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminFilterClauseEscapesQuotesAndWildcards(): void
+    {
+        $this->assertSame(
+            "LOWER(`name`) LIKE LOWER('%it\\'s \\\\%%')",
+            build_admin_filter_clause(['name' => "it's %"], ['name'], $this->escape())
+        );
+        $this->assertSame(
+            "`id` = '1\\' OR \\'1\\'=\\'1'",
+            build_admin_filter_clause(['id' => "1' OR '1'='1"], ['name'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminFilterClauseRejectsNonArray(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_admin_filter_clause('name', ['name'], $this->escape());
+    }
+
+    public function testBuildAdminFilterClauseRejectsArrayValues(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_admin_filter_clause(['name' => ['a']], ['name'], $this->escape());
+    }
+
+    public function testBuildAdminFilterClauseRejectsInvalidColumn(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_admin_filter_clause(['id = 1 OR 1' => '1'], ['name'], $this->escape());
+    }
+
+    public function testBuildAdminDesignFilterClauseSearchesNames(): void
+    {
+        $this->assertSame(
+            "WHERE LOWER(`name`) LIKE LOWER('%kite%')",
+            build_admin_design_filter_clause(['name' => 'kite'], $this->escape())
+        );
+    }
+
     public function testBuildAdminDesignFilterClauseWithoutFilter(): void
     {
         $this->assertSame('', build_admin_design_filter_clause(null, $this->escape()));

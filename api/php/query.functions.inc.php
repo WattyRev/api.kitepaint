@@ -103,8 +103,29 @@ function build_color_filter_clause($colors, $match, $exclusive, callable $escape
     return $clause;
 }
 
+// Builds "a AND b" conditions (without a WHERE keyword) for an admin list filter, an array of
+// column => term. Columns in $containsColumns use a case-insensitive "contains" match; every
+// other column is an exact match. Returns '' when there is nothing to filter on.
+function build_admin_filter_clause($filter, $containsColumns, callable $escape) {
+    if ($filter === null) {
+        return '';
+    }
+    if (!is_array($filter)) {
+        throw new InvalidArgumentException('filter must be an array');
+    }
+    $conditions = array();
+    foreach ($filter as $column => $value) {
+        if (in_array($column, $containsColumns, true)) {
+            $conditions[] = build_contains_clause($column, $value, $escape);
+        } else {
+            $conditions[] = build_where_conditions(array($column => $value), null, $escape);
+        }
+    }
+    return implode(' AND ', $conditions);
+}
+
 // Builds the WHERE clause for the admin designs list. Besides the exact-match column filters, it
-// supports two case-insensitive "contains" searches: 'username' (the design's owner) and
+// supports case-insensitive "contains" searches on 'name', 'username' (the design's owner) and
 // 'product_name' (the design's product). Returns '' when there is nothing to filter on.
 function build_admin_design_filter_clause($filter, callable $escape) {
     if ($filter === null) {
@@ -125,7 +146,7 @@ function build_admin_design_filter_clause($filter, callable $escape) {
         unset($filter['product_name']);
     }
     if (count($filter) > 0) {
-        $conditions[] = build_where_conditions($filter, null, $escape);
+        $conditions[] = build_admin_filter_clause($filter, array('name'), $escape);
     }
     if (count($conditions) === 0) {
         return '';
