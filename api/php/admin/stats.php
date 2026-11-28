@@ -18,7 +18,7 @@ $userResult = mysqli_query($conn,
 $designResult = mysqli_query($conn,
 	"SELECT COUNT(*) AS total,"
 	. " COALESCE(SUM(`created` >= (NOW() - INTERVAL 30 DAY)), 0) AS created30,"
-	. " COALESCE(SUM(`created` >= (NOW() - INTERVAL 60 DAY)), 0) AS created60"
+	. " COALESCE(SUM(`created` >= (NOW() - INTERVAL 1 YEAR)), 0) AS createdYear"
 	. " FROM `designs`");
 
 if (!$userResult || !$designResult) {
@@ -41,6 +41,6 @@ echo json_encode(array(
 	'designs' => array(
 		'total' => (int) $designs['total'],
 		'created30' => (int) $designs['created30'],
-		'created60' => (int) $designs['created60'],
+		'createdYear' => (int) $designs['createdYear'],
 	),
 ));
