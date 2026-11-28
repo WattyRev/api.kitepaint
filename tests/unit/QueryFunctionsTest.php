@@ -153,6 +153,78 @@ class QueryFunctionsTest extends TestCase
         build_contains_clause('name) OR (1', 'a', $this->escape());
     }
 
+    public function testBuildAdminDesignFilterClauseWithoutFilter(): void
+    {
+        $this->assertSame('', build_admin_design_filter_clause(null, $this->escape()));
+        $this->assertSame('', build_admin_design_filter_clause([], $this->escape()));
+    }
+
+    public function testBuildAdminDesignFilterClauseUsesExactMatchForColumns(): void
+    {
+        $this->assertSame(
+            "WHERE `user` = '5' AND `product` = '7'",
+            build_admin_design_filter_clause(['user' => '5', 'product' => '7'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminDesignFilterClauseSearchesUsernames(): void
+    {
+        $this->assertSame(
+            "WHERE `user` IN (SELECT `loginid` FROM `login` WHERE LOWER(`username`) LIKE LOWER('%void%'))",
+            build_admin_design_filter_clause(['username' => 'void'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminDesignFilterClauseSearchesProductNames(): void
+    {
+        $this->assertSame(
+            "WHERE `product` IN (SELECT `id` FROM `products` WHERE LOWER(`name`) LIKE LOWER('%b-series%'))",
+            build_admin_design_filter_clause(['product_name' => 'b-series'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminDesignFilterClauseCombinesConditions(): void
+    {
+        $this->assertSame(
+            "WHERE `user` IN (SELECT `loginid` FROM `login` WHERE LOWER(`username`) LIKE LOWER('%a%')) AND `status` = '2'",
+            build_admin_design_filter_clause(['username' => 'a', 'status' => '2'], $this->escape())
+        );
+    }
+
+    public function testBuildAdminDesignFilterClauseRejectsNonArray(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_admin_design_filter_clause('user', $this->escape());
+    }
+
+    public function testBuildAdminDesignFilterClauseRejectsArrayTerm(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_admin_design_filter_clause(['username' => ['a']], $this->escape());
+    }
+
+    public function testBuildUserSearchClause(): void
+    {
+        $this->assertSame(
+            "(`loginid` = '12' OR LOWER(`username`) LIKE LOWER('%12%'))",
+            build_user_search_clause('12', $this->escape())
+        );
+    }
+
+    public function testBuildUserSearchClauseEscapesQuotes(): void
+    {
+        $this->assertSame(
+            "(`loginid` = 'it\\'s' OR LOWER(`username`) LIKE LOWER('%it\\'s%'))",
+            build_user_search_clause("it's", $this->escape())
+        );
+    }
+
+    public function testBuildUserSearchClauseRejectsArrayTerm(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        build_user_search_clause(['a'], $this->escape());
+    }
+
     public function testBuildOrderClause(): void
     {
         $this->assertSame('ORDER BY `id` DESC', build_order_clause(['id', 'desc'], ['id']));
