@@ -1,13 +1,22 @@
 <?php
 require_once "header.php";
 
-function getProducts($filter, $return) {
+function getProducts($filter, $return, $order = null) {
     $conn = connectToDb();
     $query = "";
 	if(isset($filter)){
 		$query = "WHERE " . build_where_conditions($filter, null, sql_escaper($conn));
 	}
-	$query = "SELECT * FROM products $query";
+	$orderClause = build_order_clause($order, array('name', 'manufacturer', 'created'));
+	// Break ties on id so that the order is stable when sorting by a non-unique column.
+	if ($orderClause !== '') {
+		$orderClause .= ', `id` DESC';
+	}
+	// manufacturer_name is looked up so that the admin can show names next to the ids. It is a
+	// scalar subquery, so it never changes the number of rows returned.
+	$query = "SELECT products.*,"
+		. " (SELECT `name` FROM `manufacturers` WHERE `id` = products.`manufacturer` LIMIT 1) AS `manufacturer_name`"
+		. " FROM products $query $orderClause";
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
@@ -190,7 +199,8 @@ function updateProduct($postData) {
 
 if ($_GET){
     $filter = isset($_GET['filter']) ? $_GET['filter'] : null;
-    echo getProducts($filter, $_GET['return']);
+    $order = isset($_GET['order']) ? $_GET['order'] : null;
+    echo getProducts($filter, $_GET['return'], $order);
     return;
 }
 if ($_POST) {
