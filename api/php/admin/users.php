@@ -4,7 +4,8 @@ $conn = connectToDb();
 if ($_GET){
 	$conditions = array();
 	if (isset($_GET['filter'])){
-		$conditions[] = build_where_conditions($_GET['filter'], null, sql_escaper($conn));
+		// username and email are case-insensitive "contains" searches; other columns match exactly.
+		$conditions[] = build_admin_filter_clause($_GET['filter'], array('username', 'email'), sql_escaper($conn));
 	}
 	// Lookup by exact loginid or partial username, used when picking a user for a design.
 	if (isset($_GET['search']) && $_GET['search'] !== '') {

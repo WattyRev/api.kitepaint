@@ -5,7 +5,11 @@ function getProducts($filter, $return, $order = null) {
     $conn = connectToDb();
     $query = "";
 	if(isset($filter)){
-		$query = "WHERE " . build_where_conditions($filter, null, sql_escaper($conn));
+		// name is a case-insensitive "contains" search; other columns match exactly.
+		$conditions = build_admin_filter_clause($filter, array('name'), sql_escaper($conn));
+		if ($conditions !== '') {
+			$query = "WHERE " . $conditions;
+		}
 	}
 	$orderClause = build_order_clause($order, array('name', 'manufacturer', 'created'));
 	// Break ties on id so that the order is stable when sorting by a non-unique column.
