@@ -88,29 +88,6 @@ function sendActivationEmail($username, $password, $uid, $email, $actcode) {
 	}
 }
 
-function sendRetailerActivation($id, $name, $email, $actcode) {
-	global $domain;
-	$link = "https://$domain/retailers/#!/activate?id=$id&actcode=$actcode";
-	$message = "
-	Hello,
-
-	Thank you for signing up as a retailer on KitePaint!
-
-	Your account has been created and is ready for you to set up. Click on the link below to begin receiving designs directly from KitePaint.
-
-	$link
-
-	Regards,
-	Watty at $domain
-	";
-
-	if (sendMail($email, "Please set up your KitePaint retailer account", $message, "spencer@kitepaint.com", false)) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
 function sendAccountInfo($username, $password, $email) {
 	global $domain;
 	$link = 'https://' . $domain;
