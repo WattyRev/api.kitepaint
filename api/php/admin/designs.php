@@ -8,10 +8,23 @@ if ($_GET){
 	}
 	$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null);
 	$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null, isset($_GET['skip']) ? $_GET['skip'] : null);
+	// Break ties on id so that pages are stable when sorting by a non-unique column.
+	if ($order !== '' && strpos($order, '`id`') === false) {
+		$order .= ', `id` DESC';
+	}
 	$query = "SELECT * FROM designs $filter $order $limit";
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
+
+	// When requested, also report the total number of matching designs (ignoring the limit) so
+	// that clients can paginate. Opt-in so existing callers keep receiving a bare array.
+	$includeTotal = isset($_GET['includeTotal']) && (string) $_GET['includeTotal'] !== '' && (string) $_GET['includeTotal'] !== '0';
+	$total = null;
+	if ($includeTotal) {
+		$countResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM designs $filter");
+		$total = $countResult ? (int) mysqli_result($countResult, 0, "total") : 0;
+	}
 	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
@@ -23,6 +36,10 @@ if ($_GET){
 			}
 		}
 		array_push($response, $designs);
+	}
+	if ($includeTotal) {
+		echo JSON_encode(array('data' => $response, 'total' => $total));
+		return;
 	}
 	echo JSON_encode($response);
 	return;
