@@ -12,12 +12,25 @@ if ($_GET){
 	}
 	$conditions = array_filter($conditions, function ($condition) { return $condition !== ''; });
 	$filter = count($conditions) > 0 ? "WHERE " . implode(' AND ', $conditions) : "";
-	$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
+	$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null, isset($_GET['skip']) ? $_GET['skip'] : null);
 	$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null);
+	// Break ties on loginid so that pages are stable when sorting by a non-unique column.
+	if ($order !== '' && strpos($order, '`loginid`') === false) {
+		$order .= ', `loginid` DESC';
+	}
 	$query = "SELECT * FROM login $filter $order $limit";
 
 	$result = mysqli_query($conn, $query);
 	$num = mysqli_num_rows($result);
+
+	// When requested, also report the total number of matching users (ignoring the limit) so
+	// that clients can paginate. Opt-in so existing callers keep receiving a bare array.
+	$includeTotal = isset($_GET['includeTotal']) && (string) $_GET['includeTotal'] !== '' && (string) $_GET['includeTotal'] !== '0';
+	$total = null;
+	if ($includeTotal) {
+		$countResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM login $filter");
+		$total = $countResult ? (int) mysqli_result($countResult, 0, "total") : 0;
+	}
 	mysqli_close($conn);
 	$response = array();
 	for ($i = 0; $i < $num; $i++) {
@@ -29,6 +42,10 @@ if ($_GET){
 			}
 		}
 		array_push($response, $designs);
+	}
+	if ($includeTotal) {
+		echo JSON_encode(array('data' => $response, 'total' => $total));
+		return;
 	}
 	echo JSON_encode($response);
 	return;
