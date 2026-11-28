@@ -2,10 +2,16 @@
 require_once "header.php";
 $conn = connectToDb();
 if ($_GET){
-	$filter = "";
+	$conditions = array();
 	if (isset($_GET['filter'])){
-		$filter = "WHERE " . build_where_conditions($_GET['filter'], null, sql_escaper($conn));
+		$conditions[] = build_where_conditions($_GET['filter'], null, sql_escaper($conn));
 	}
+	// Lookup by exact loginid or partial username, used when picking a user for a design.
+	if (isset($_GET['search']) && $_GET['search'] !== '') {
+		$conditions[] = build_user_search_clause($_GET['search'], sql_escaper($conn));
+	}
+	$conditions = array_filter($conditions, function ($condition) { return $condition !== ''; });
+	$filter = count($conditions) > 0 ? "WHERE " . implode(' AND ', $conditions) : "";
 	$limit = build_limit_clause(isset($_GET['limit']) ? $_GET['limit'] : null);
 	$order = build_order_clause(isset($_GET['order']) ? $_GET['order'] : null);
 	$query = "SELECT * FROM login $filter $order $limit";

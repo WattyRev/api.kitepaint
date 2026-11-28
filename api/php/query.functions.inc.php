@@ -103,6 +103,46 @@ function build_color_filter_clause($colors, $match, $exclusive, callable $escape
     return $clause;
 }
 
+// Builds the WHERE clause for the admin designs list. Besides the exact-match column filters, it
+// supports two case-insensitive "contains" searches: 'username' (the design's owner) and
+// 'product_name' (the design's product). Returns '' when there is nothing to filter on.
+function build_admin_design_filter_clause($filter, callable $escape) {
+    if ($filter === null) {
+        return '';
+    }
+    if (!is_array($filter)) {
+        throw new InvalidArgumentException('filter must be an array');
+    }
+    $conditions = array();
+    if (array_key_exists('username', $filter)) {
+        $conditions[] = "`user` IN (SELECT `loginid` FROM `login` WHERE "
+            . build_contains_clause('username', $filter['username'], $escape) . ")";
+        unset($filter['username']);
+    }
+    if (array_key_exists('product_name', $filter)) {
+        $conditions[] = "`product` IN (SELECT `id` FROM `products` WHERE "
+            . build_contains_clause('name', $filter['product_name'], $escape) . ")";
+        unset($filter['product_name']);
+    }
+    if (count($filter) > 0) {
+        $conditions[] = build_where_conditions($filter, null, $escape);
+    }
+    if (count($conditions) === 0) {
+        return '';
+    }
+    return 'WHERE ' . implode(' AND ', $conditions);
+}
+
+// Builds a clause that matches users by exact loginid or by a case-insensitive "contains" match on
+// the username. Used by the admin user lookup.
+function build_user_search_clause($term, callable $escape) {
+    if (!is_scalar($term)) {
+        throw new InvalidArgumentException('Invalid value for search');
+    }
+    return "(`loginid` = '" . $escape((string) $term) . "' OR "
+        . build_contains_clause('username', $term, $escape) . ")";
+}
+
 // Builds "ORDER BY `column` ASC|DESC" from an array of [column, direction].
 function build_order_clause($order, $allowedColumns = null) {
     if ($order === null) {
